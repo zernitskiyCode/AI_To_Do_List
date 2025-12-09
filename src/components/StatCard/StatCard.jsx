@@ -1,3 +1,5 @@
+import './StatCard.scss';
+
 const StatCard = ({ label, value }) => {
   return (
     <div className="stat-card">
@@ -8,4 +10,3 @@ const StatCard = ({ label, value }) => {
 };
 
 export default StatCard;
-

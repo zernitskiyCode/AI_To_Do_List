@@ -1,3 +1,5 @@
+import './Header.scss';
+
 const Header = ({ 
   title = 'Русский Продукт',
   showLogout = false, 
@@ -30,5 +32,3 @@ const Header = ({
 };
 
 export default Header;
-
-

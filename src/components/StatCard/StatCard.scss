@@ -1,0 +1,37 @@
+// Стили для StatCard компонента
+@import '../../styles/_variables';
+
+.stat-card {
+  background: #FFFFFF;
+  border-radius: $card-radius;
+  padding: $base-padding;
+  box-shadow: $shadow-md;
+  border: 1px solid #E5E7EB;
+  @include flex-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  
+  .stat-number {
+    font-size: 28px;
+    font-weight: 600;
+    color: color(success);
+    
+    @include respond-to(md) {
+      font-size: 32px;
+    }
+  }
+  
+  // Варианты карточек
+  &:nth-child(2) .stat-number {
+    color: color(accent);
+  }
+  
+  &:nth-child(3) .stat-number {
+    color: color(success);
+  }
+  
+  &:nth-child(4) .stat-number {
+    color: #F59E0B; // Оранжевый для огня
+  }
+}

@@ -52,6 +52,43 @@ $shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
 $shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
 $shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
 
+// Миксины
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
+@mixin card {
+  background: color(white);
+  border-radius: $card-radius;
+  padding: $base-padding;
+  box-shadow: $shadow-md;
+  border: 1px solid color(border);
+}
 
+@mixin transition {
+  transition: all 0.3s ease;
+}
+
+@mixin premium-gradient {
+  background: linear-gradient(135deg, 
+    color(premium-start) 0%, 
+    color(premium-end) 100%
+  );
+}
+
+// Миксин для адаптивности
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+}

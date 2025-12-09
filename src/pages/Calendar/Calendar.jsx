@@ -1,3 +1,5 @@
+import './Calendar.scss';
+
 const Calendar = () => {
   return (
     <>
@@ -12,5 +14,3 @@ const Calendar = () => {
 };
 
 export default Calendar;
-
-
