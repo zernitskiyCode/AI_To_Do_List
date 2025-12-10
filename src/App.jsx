@@ -20,7 +20,6 @@ const APP_CONFIG = {
 };
 
 const AppContent = () => {
-  const location = useLocation();
   
   // Состояние пользователя
   const [user] = useState({
@@ -73,12 +72,9 @@ const [stats] = useState({
     console.log('Обновление профиля');
   };
 
-  const showLogout = location.pathname === '/';
-  const isHomePage = location.pathname === '/';
 
   return (
     <>
-      <main>
         <Routes>
           <Route 
             path="/profile" 
@@ -121,7 +117,6 @@ const [stats] = useState({
             element={<Calendar />} 
           />
         </Routes>
-      </main>
       <BottomNav navItems={APP_CONFIG.navItems} />
     </>
   );

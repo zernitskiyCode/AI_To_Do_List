@@ -2,8 +2,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16px;
+  padding: 24px 32px;
   margin-bottom: 32px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+  width: 100%;
+  box-sizing: border-box;
 
   &__left {
     flex: 1;
