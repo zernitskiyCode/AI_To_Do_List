@@ -1,7 +1,6 @@
 import HomeHeader from '../../components/HomeHeader/HomeHeader';
 import VoiceInputCard from '../../components/VoiceInputCard/VoiceInputCard';
 import SearchBar from '../../components/SearchBar/SearchBar';
-import './Home.scss';
 
 const Home = ({ 
   notificationCount = 0,

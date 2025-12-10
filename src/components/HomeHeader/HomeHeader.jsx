@@ -6,6 +6,7 @@ const HomeHeader = ({
   notificationCount = 0,
   onNotificationClick 
 }) => {
+  
   const formatDate = () => {
     if (date) return date;
     
