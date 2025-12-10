@@ -1,0 +1,21 @@
+// ============================================
+// Главный SCSS файл приложения
+// ============================================
+
+// Импортируем переменные и миксины
+@import './_variables';
+
+// Импортируем базовые стили из папки scss
+@import '../scss/_base';
+@import '../scss/_components';
+@import '../scss/_layout';
+
+// Стили для главной страницы (градиентный фон)
+.home-page {
+  background: linear-gradient(180deg, #3B82F6 0%, #8B5CF6 100%);
+  min-height: calc(100vh - 64px);
+  margin: -16px;
+  padding: 16px;
+  position: relative;
+  padding-bottom: 112px;
+}

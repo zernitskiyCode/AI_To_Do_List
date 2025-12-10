@@ -1,0 +1,69 @@
+.voice-input-card {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  border-radius: 24px;
+  padding: 42px;
+  margin: 32px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+          box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+}
+.voice-input-card__button {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-bottom: 32px;
+  -webkit-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.voice-input-card__button:hover {
+  -webkit-transform: scale(1.05);
+          transform: scale(1.05);
+  -webkit-box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+.voice-input-card__button:active {
+  -webkit-transform: scale(0.98);
+          transform: scale(0.98);
+}
+.voice-input-card__icon {
+  font-size: 48px;
+  display: block;
+}
+.voice-input-card__text {
+  text-align: center;
+  color: #FFFFFF;
+}
+.voice-input-card__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #FFFFFF;
+}
+.voice-input-card__subtitle {
+  font-size: 16px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+}

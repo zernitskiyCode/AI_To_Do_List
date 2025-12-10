@@ -1,0 +1,38 @@
+// Стили для Header компонента
+@import '../../styles/_variables';
+
+header {
+  background: #FFFFFF;
+  height: $header-height;
+  @include flex-between;
+  padding: 0 $base-padding;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #4F46E5;
+    
+    @include respond-to(md) {
+      font-size: 20px;
+    }
+  }
+}
+
+// Кнопка выхода
+.btn--logout {
+  background: transparent;
+  color: color(text-light);
+  font-size: map-get($font-sizes, caption);
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  @include transition();
+  
+  &:hover {
+    color: color(accent);
+  }
+}
