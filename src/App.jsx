@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Header from './components/Header/Header';
 import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
@@ -79,13 +78,6 @@ const [stats] = useState({
 
   return (
     <>
-      {!isHomePage && (
-        <Header 
-          title={APP_CONFIG.title}
-          showLogout={showLogout} 
-          onLogout={handleLogout}
-        />
-      )}
       <main>
         <Routes>
           <Route 
