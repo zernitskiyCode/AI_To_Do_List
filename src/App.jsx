@@ -8,7 +8,6 @@ import Stats from './pages/Stats/Stats';
 import Calendar from './pages/Calendar/Calendar';
 import './styles/style.scss';
 
-// Конфигурация приложения
 const APP_CONFIG = {
   title: 'Русский Продукт',
   navItems: [
@@ -21,27 +20,27 @@ const APP_CONFIG = {
 
 const AppContent = () => {
   
-  // Состояние пользователя
+
   const [user] = useState({
     name: 'Александр Иванов',
     email: 'alexander@example.com',
     avatar: 'АИ',
   });
 
-  // Статистика для главной страницы
+// Статистика для главной страницы
 const [stats] = useState({
   voiceRecords: 12,
-  averageCompletionTime: '2.5h',  // ← ПРАВИЛЬНО
+  averageCompletionTime: '2.5h', 
 });
 
-  // Настройки приложения
+// Настройки приложения
   const [settings, setSettings] = useState({
     quietMode: true,
     theme: 'light',
     language: 'ru',
   });
 
-  // Обработчики для настроек
+
   const handleToggleQuietMode = () => {
     setSettings(prev => ({ ...prev, quietMode: !prev.quietMode }));
   };
@@ -54,24 +53,6 @@ const [stats] = useState({
     setSettings(prev => ({ ...prev, language }));
   };
 
-  // Обработчик выхода из аккаунта
-  const handleLogout = () => {
-    console.log('Выход из аккаунта');
-    // Здесь можно добавить логику выхода
-  };
-
-  // Обработчик Premium
-  const handlePremiumClick = () => {
-    console.log('Premium PRO');
-    // Здесь можно добавить логику Premium
-  };
-
-  // Обработчик обновления профиля
-  const handleRefreshProfile = () => {
-    // Здесь можно добавить логику обновления
-    console.log('Обновление профиля');
-  };
-
 
   return (
     <>
@@ -81,8 +62,8 @@ const [stats] = useState({
             element={
               <Profile 
                 user={user}
-                onPremiumClick={handlePremiumClick}
-                onRefresh={handleRefreshProfile}
+                // onPremiumClick={handlePremiumClick}
+                // onRefresh={handleRefreshProfile}
               />
             } 
           />

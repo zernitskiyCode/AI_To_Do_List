@@ -16,13 +16,13 @@ const Stats = ({ stats = {} }) => {
   ];
 
   return (
-    <>
+    <div className="stats-page">
       <div className="stats-grid">
         {statCards.map((card, index) => (
           <StatCard key={index} label={card.label} value={card.value} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

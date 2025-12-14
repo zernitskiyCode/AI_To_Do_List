@@ -1,0 +1,47 @@
+@import '../../styles/variables';
+
+.add-task-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: $base-padding;
+  border: 2px dashed color(accent);
+  border-radius: $card-radius;
+  background: rgba(79, 70, 229, 0.05);
+  color: color(accent);
+  font-size: map-get($font-sizes, body);
+  font-weight: 500;
+  cursor: pointer;
+  @include transition();
+  margin-bottom: $base-padding;
+
+  &__icon {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  &__text {
+    font-size: map-get($font-sizes, body);
+  }
+
+  &:hover {
+    background: rgba(79, 70, 229, 0.1);
+    border-color: darken(color(accent), 10%);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @include respond-to(sm) {
+    padding: 12px;
+    
+    &__text {
+      font-size: map-get($font-sizes, caption);
+    }
+  }
+}

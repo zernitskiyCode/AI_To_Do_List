@@ -9,3 +9,8 @@
 @import './_base';
 @import './_components';
 @import './_layout';
+
+// Импортируем стили компонентов
+@import '../components/TaskFilters/TaskFilters';
+@import '../components/AddTaskButton/AddTaskButton';
+

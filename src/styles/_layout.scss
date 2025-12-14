@@ -39,14 +39,110 @@ main {
   }
 }
 
-// Главная страница с градиентным фоном
+// Главная страница - без отступов, так как HomeHeader имеет свои отступы
 .home-page {
-  background: rgb(234, 234, 234);
-  min-height: calc(100vh - 64px);
-  margin: -16px;
-  padding: 16px;
-  position: relative;
-  padding-bottom: 112px;
+
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: 0;
+  padding-bottom: $nav-height + $base-padding;
+
+  &__content {
+    padding: 0 $base-padding $base-padding;
+
+    @include respond-to(sm) {
+      padding: 0 12px 12px;
+    }
+  }
+
+  &__tasks {
+    padding: $base-padding 0;
+    background-color: color(bg);
+    min-height: 400px;
+
+    @include respond-to(sm) {
+      padding: 12px 0;
+    }
+  }
+}
+
+// Контейнер для компонентов - обеспечивает выравнивание
+.component-container {
+  margin-bottom: $base-padding;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @include respond-to(sm) {
+    margin-bottom: 12px;
+  }
+}
+
+// Секция задач с sticky заголовком
+.tasks-section {
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: color(bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    margin: 0 (-$base-padding) 0 (-$base-padding);
+    padding: $base-padding;
+    margin-bottom: $base-padding;
+
+    @include respond-to(sm) {
+      margin: 0 -12px 0 -12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: map-get($font-sizes, h2-mobile);
+      font-weight: 600;
+      color: color(text);
+      margin: 0 0 $base-padding 0;
+
+      @include respond-to(md) {
+        font-size: map-get($font-sizes, h2-desktop);
+      }
+
+      @include respond-to(sm) {
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .component-container {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Placeholder для задач
+.tasks-placeholder {
+  @include flex-center;
+  padding: $base-padding * 3;
+  color: color(text-light);
+  font-style: italic;
+
+  @include respond-to(sm) {
+    padding: $base-padding * 2;
+    font-size: map-get($font-sizes, caption);
+  }
+}
+
+// Общие стили для остальных страниц с отступами
+.profile-page,
+.settings-page,
+.stats-page,
+.calendar-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: $base-padding;
+  padding-bottom: $nav-height + $base-padding * 2;
 }
 
 // Сетка статистики
@@ -129,5 +225,5 @@ main {
   border-radius: $card-radius;
   overflow: hidden;
   box-shadow: $shadow-md;
-  margin-top: $base-padding * 2;
+  margin-top: $base-padding;
 }

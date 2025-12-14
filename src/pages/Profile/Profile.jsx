@@ -50,7 +50,7 @@ const Profile = ({
   ];
 
   return (
-    <>
+    <div className="profile-page">
       <div className="profile-card">
         <div className="avatar">{avatar}</div>
         <h2>{name}</h2>
@@ -102,7 +102,7 @@ const Profile = ({
           );
         })}
       </div>
-    </>
+    </div>
   );
 };
 
