@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 const Profile = ({ 
   user = {},
   onPremiumClick,
-  onRefresh 
+  onRefresh,
+  onLogout
 }) => {
   const {
     name = 'Пользователь',
@@ -20,6 +21,12 @@ const Profile = ({
   const handleRefresh = () => {
     if (onRefresh) {
       onRefresh();
+    }
+  };
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
     }
   };
 
@@ -46,6 +53,13 @@ const Profile = ({
       label: 'Обновить',
       onClick: handleRefresh,
       isLink: false 
+    },
+    { 
+      icon: '🚪', 
+      label: 'Выход',
+      onClick: handleLogout,
+      isLink: false,
+      isLogout: true
     },
   ];
 
@@ -83,7 +97,7 @@ const Profile = ({
           return (
             <div
               key={index}
-              className="list-item"
+              className={`list-item ${item.isLogout ? 'list-item--logout' : ''}`}
               onClick={item.onClick}
               role="button"
               tabIndex={0}

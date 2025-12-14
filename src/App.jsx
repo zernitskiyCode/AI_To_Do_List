@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
 import Settings from './pages/Settings/Settings';
 import Stats from './pages/Stats/Stats';
 import Calendar from './pages/Calendar/Calendar';
+import Auth from './pages/Auth/Auth';
 import './styles/style.scss';
 
 // Конфигурация приложения
@@ -20,19 +21,53 @@ const APP_CONFIG = {
 };
 
 const AppContent = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authUser, setAuthUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Проверяем, есть ли пользователь в localStorage при загрузке
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    console.log('Checking saved user:', savedUser);
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        console.log('Loading user data:', userData);
+        setAuthUser(userData);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Ошибка при загрузке пользователя:', error);
+      }
+    }
+  }, []);
+
+  // Обработчик успешной авторизации
+  const handleAuthSuccess = (userData) => {
+    console.log('Auth success:', userData);
+    setAuthUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  // Обработчик выхода
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setAuthUser(null);
+    setIsAuthenticated(false);
+  };
   
   // Состояние пользователя
   const [user] = useState({
-    name: 'Александр Иванов',
-    email: 'alexander@example.com',
-    avatar: 'АИ',
+    name: authUser?.fullName || 'Пользователь',
+    email: 'user@example.com',
+    avatar: authUser?.firstName?.[0] + authUser?.lastName?.[0] || 'УУ',
   });
 
   // Статистика для главной страницы
-const [stats] = useState({
-  voiceRecords: 12,
-  averageCompletionTime: '2.5h',  // ← ПРАВИЛЬНО
-});
+  const [stats] = useState({
+    voiceRecords: 12,
+    averageCompletionTime: '2.5h',
+  });
 
   // Настройки приложения
   const [settings, setSettings] = useState({
@@ -55,26 +90,31 @@ const [stats] = useState({
   };
 
   // Обработчик выхода из аккаунта
-  const handleLogout = () => {
-    console.log('Выход из аккаунта');
-    // Здесь можно добавить логику выхода
+  const handleLogoutClick = () => {
+    handleLogout();
   };
 
   // Обработчик Premium
   const handlePremiumClick = () => {
     console.log('Premium PRO');
-    // Здесь можно добавить логику Premium
   };
 
   // Обработчик обновления профиля
   const handleRefreshProfile = () => {
-    // Здесь можно добавить логику обновления
     console.log('Обновление профиля');
   };
 
+  // Если пользователь не авторизован, показываем только страницу авторизации
+  if (!isAuthenticated) {
+    console.log('User not authenticated, showing auth page');
+    return <Auth onAuthSuccess={handleAuthSuccess} />;
+  }
+  
+  console.log('User authenticated, showing app:', authUser);
 
   return (
     <>
+      <main>
         <Routes>
           <Route 
             path="/profile" 
@@ -83,6 +123,7 @@ const [stats] = useState({
                 user={user}
                 onPremiumClick={handlePremiumClick}
                 onRefresh={handleRefreshProfile}
+                onLogout={handleLogoutClick}
               />
             } 
           />
@@ -117,6 +158,7 @@ const [stats] = useState({
             element={<Calendar />} 
           />
         </Routes>
+      </main>
       <BottomNav navItems={APP_CONFIG.navItems} />
     </>
   );
