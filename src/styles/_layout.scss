@@ -41,19 +41,12 @@ main {
 
 // Главная страница - без отступов, так как HomeHeader имеет свои отступы
 .home-page {
-
   background-color: color(bg);
   min-height: calc(100vh - #{$nav-height});
   padding: 0;
   padding-bottom: $nav-height + $base-padding;
 
-  &__content {
-    padding: 0 $base-padding $base-padding;
 
-    @include respond-to(sm) {
-      padding: 0 12px 12px;
-    }
-  }
 
   &__tasks {
     padding: $base-padding 0;
@@ -68,14 +61,15 @@ main {
 
 // Контейнер для компонентов - обеспечивает выравнивание
 .component-container {
-  margin-bottom: $base-padding;
+  margin-bottom: 20px;
+  width: 100%;
   
   &:last-child {
     margin-bottom: 0;
   }
 
-  @include respond-to(sm) {
-    margin-bottom: 12px;
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
   }
 }
 
@@ -89,27 +83,23 @@ main {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-    margin: 0 (-$base-padding) 0 (-$base-padding);
-    padding: $base-padding;
-    margin-bottom: $base-padding;
+    margin: 0 -20px 0 -20px;
+    padding: 20px;
+    margin-bottom: 20px;
 
-    @include respond-to(sm) {
-      margin: 0 -12px 0 -12px;
-      padding: 12px;
-      margin-bottom: 12px;
+    @media (max-width: 768px) {
+      margin: 0 -16px 0 -16px;
+      padding: 16px;
+      margin-bottom: 16px;
     }
 
     h2 {
-      font-size: map-get($font-sizes, h2-mobile);
+      font-size: 20px;
       font-weight: 600;
       color: color(text);
-      margin: 0 0 $base-padding 0;
+      margin: 0 0 16px 0;
 
-      @include respond-to(md) {
-        font-size: map-get($font-sizes, h2-desktop);
-      }
-
-      @include respond-to(sm) {
+      @media (max-width: 768px) {
         font-size: 18px;
         margin-bottom: 12px;
       }
@@ -124,13 +114,14 @@ main {
 // Placeholder для задач
 .tasks-placeholder {
   @include flex-center;
-  padding: $base-padding * 3;
+  padding: 40px 20px;
   color: color(text-light);
   font-style: italic;
+  text-align: center;
 
-  @include respond-to(sm) {
-    padding: $base-padding * 2;
-    font-size: map-get($font-sizes, caption);
+  @media (max-width: 768px) {
+    padding: 32px 16px;
+    font-size: 14px;
   }
 }
 

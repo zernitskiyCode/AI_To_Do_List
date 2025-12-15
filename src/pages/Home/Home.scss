@@ -1,0 +1,121 @@
+@import '../../styles/variables';
+
+.home-page {
+  background-color: #F9FAFB;
+  min-height: calc(100vh - 80px);
+  padding: 0;
+  padding-bottom: 100px;
+
+  &__content {
+    padding: 0 20px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    @media (max-width: 768px) {
+      padding: 0 16px 16px;
+      max-width: 100%;
+    }
+  }
+
+  .component-container {
+    margin-bottom: 20px;
+    width: 100%;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+    }
+  }
+
+  .tasks-section {
+    width: 100%;
+
+    &__header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #F9FAFB;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+      margin: 0 -20px 0 -20px;
+      padding: 20px;
+      margin-bottom: 40px;
+
+      @media (max-width: 768px) {
+        margin: 0 -16px 0 -16px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .component-container {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .tasks-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #9CA3AF;
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 768px) {
+      padding: 32px 16px;
+      font-size: 14px;
+    }
+  }
+}
+
+// Стили для сообщений об ошибках
+.error-message {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  p {
+    margin: 0;
+    color: #DC2626;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid #DC2626;
+    color: #DC2626;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #DC2626;
+      color: white;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}

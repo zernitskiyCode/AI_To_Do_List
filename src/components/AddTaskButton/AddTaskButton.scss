@@ -6,16 +6,22 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: $base-padding;
+  padding: 16px;
   border: 2px dashed color(accent);
   border-radius: $card-radius;
   background: rgba(79, 70, 229, 0.05);
   color: color(accent);
-  font-size: map-get($font-sizes, body);
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   @include transition();
-  margin-bottom: $base-padding;
+  margin: 0;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 14px;
+    font-size: 15px;
+  }
 
   &__icon {
     font-size: 20px;
@@ -24,24 +30,16 @@
   }
 
   &__text {
-    font-size: map-get($font-sizes, body);
+    font-size: inherit;
   }
 
   &:hover {
     background: rgba(79, 70, 229, 0.1);
-    border-color: darken(color(accent), 10%);
+    border-color: #4338ca;
     transform: translateY(-1px);
   }
 
   &:active {
     transform: translateY(0);
-  }
-
-  @include respond-to(sm) {
-    padding: 12px;
-    
-    &__text {
-      font-size: map-get($font-sizes, caption);
-    }
   }
 }

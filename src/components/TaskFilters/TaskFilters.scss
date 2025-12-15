@@ -3,47 +3,72 @@
 .task-filters {
   background: transparent;
   padding: 0;
-  margin-bottom: 0;
+  margin: 0;
+  width: 100%;
 
   &__section {
     &:not(:last-child) {
-      margin-bottom: $base-padding;
+      margin-bottom: 16px;
+
+      @media (max-width: 768px) {
+        margin-bottom: 12px;
+      }
     }
   }
 
   &__priority {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: $base-padding;
+    margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+      margin-bottom: 12px;
+    }
   }
 
   &__categories {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+    }
   }
 }
 
 .priority-filter {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: 6px;
+  padding: 10px 14px;
   border: 2px solid var(--priority-color);
-  border-radius: 25px;
+  border-radius: 20px;
   background: color(white);
-  font-size: map-get($font-sizes, body);
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   @include transition();
   box-shadow: $shadow-sm;
 
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+    font-size: 13px;
+    gap: 5px;
+  }
+
   &__dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: currentColor;
+
+    @media (max-width: 768px) {
+      width: 7px;
+      height: 7px;
+    }
   }
 
   &:hover {
@@ -59,24 +84,24 @@
     transform: translateY(-1px);
     box-shadow: $shadow-md;
   }
-
-  @include respond-to(sm) {
-    padding: 10px 14px;
-    font-size: map-get($font-sizes, caption);
-  }
 }
 
 .category-filter {
-  padding: 12px 20px;
+  padding: 10px 16px;
   border: 2px solid color(border);
-  border-radius: 25px;
+  border-radius: 20px;
   background: color(white);
   color: color(text);
-  font-size: map-get($font-sizes, body);
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   @include transition();
   box-shadow: $shadow-sm;
+
+  @media (max-width: 768px) {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
 
   &:hover {
     background: color(accent);
@@ -92,10 +117,5 @@
     border-color: color(accent);
     transform: translateY(-1px);
     box-shadow: $shadow-md;
-  }
-
-  @include respond-to(sm) {
-    padding: 10px 16px;
-    font-size: map-get($font-sizes, caption);
   }
 }

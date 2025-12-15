@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import HomeHeader from '../../components/HomeHeader/HomeHeader';
 import VoiceInputCard from '../../components/VoiceInputCard/VoiceInputCard';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import TaskFilters from '../../components/TaskFilters/TaskFilters';
 import AddTaskButton from '../../components/AddTaskButton/AddTaskButton';
+import TaskList from '../../components/TaskList/TaskList';
+import TaskStats from '../../components/TaskStats/TaskStats';
+import { useTasks } from '../../hooks/useTasks';
+import './Home.scss';
 
 const Home = ({ 
   notificationCount = 0,
@@ -13,29 +17,72 @@ const Home = ({
 }) => {
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Используем хук для управления задачами
+  const {
+    tasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    toggleComplete,
+    getFilteredTasks,
+    getTasksStats
+  } = useTasks();
+
+  // Фильтрованные задачи на основе выбранных фильтров
+  const filteredTasks = useMemo(() => {
+    return getFilteredTasks({
+      priority: selectedPriority,
+      category: selectedCategory,
+      search: searchQuery
+    });
+  }, [getFilteredTasks, selectedPriority, selectedCategory, searchQuery]);
+
+  // Статистика задач
+  const stats = useMemo(() => getTasksStats(), [getTasksStats]);
 
   const handlePriorityChange = (priority) => {
     setSelectedPriority(priority);
-    // TODO: Implement priority filtering logic
-    console.log('Priority changed to:', priority);
   };
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    // TODO: Implement category filtering logic
-    console.log('Category changed to:', category);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    onSearch?.(query); // Вызываем родительский обработчик если есть
   };
 
   const handleAddTask = () => {
-    // TODO: Implement add task logic
-    // Example implementation:
-    // - Open modal/form for task creation
-    // - Collect task data (title, description, priority, category, due date)
-    // - Validate input data
-    // - Save task to state/database
-    // - Update task list
-    // - Show success notification
-    console.log('Add task manually clicked');
+    // Простая реализация добавления задачи
+    // В будущем можно заменить на модальное окно
+    const title = prompt('Введите название задачи:');
+    if (!title || title.trim() === '') return;
+
+    const description = prompt('Введите описание задачи (необязательно):') || '';
+    
+    const taskData = {
+      title: title.trim(),
+      description: description.trim(),
+      priority: selectedPriority !== 'all' ? selectedPriority : 'medium',
+      category: selectedCategory !== 'all' ? selectedCategory : 'personal',
+      dueDate: null,
+      tags: []
+    };
+
+    const newTask = addTask(taskData);
+    console.log('Задача добавлена:', newTask);
+  };
+
+  const handleToggleComplete = (taskId) => {
+    toggleComplete(taskId);
+  };
+
+  const handleDeleteTask = (taskId) => {
+    if (!confirm('Вы уверены, что хотите удалить эту задачу?')) return;
+    deleteTask(taskId);
   };
 
   return (
@@ -45,18 +92,21 @@ const Home = ({
         onNotificationClick={onNotificationClick}
       />
       
+      <div className="component-container">
+        <TaskStats stats={stats} />
+      </div>
+      
       <div className="home-page__content">
         <div className="component-container">
           <VoiceInputCard onRecordClick={onRecordClick} />
         </div>
         
         <div className="component-container">
-          <SearchBar onSearch={onSearch} />
+          <SearchBar onSearch={handleSearch} />
         </div>
         
         <div className="tasks-section">
           <div className="tasks-section__header">
-            <h2>Мои задачи</h2>
             <div className="component-container">
               <TaskFilters
                 selectedPriority={selectedPriority}
@@ -72,10 +122,12 @@ const Home = ({
           </div>
           
           <div className="component-container">
-            {/* TODO: Add TaskList component here */}
-            <div className="tasks-placeholder">
-              <p>Здесь будут отображаться задачи...</p>
-            </div>
+            <TaskList
+              tasks={filteredTasks}
+              onToggleComplete={handleToggleComplete}
+              onDeleteTask={handleDeleteTask}
+              onUpdateTask={updateTask}
+            />
           </div>
         </div>
       </div>
