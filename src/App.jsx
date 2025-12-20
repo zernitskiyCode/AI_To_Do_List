@@ -29,11 +29,7 @@ const AppContent = () => {
     avatar: 'АИ',
   });
 
-// Статистика для главной страницы
-const [stats] = useState({
-  voiceRecords: 12,
-  averageCompletionTime: '2.5h', 
-});
+
 
 // Настройки приложения
   const [settings, setSettings] = useState({
@@ -82,7 +78,7 @@ const [stats] = useState({
           />
           <Route 
             path="/stats" 
-            element={<Stats stats={stats} />} 
+            element={<Stats/>} 
           />
           <Route 
             path="/" 

@@ -5,9 +5,11 @@ import SearchBar from '../../components/SearchBar/SearchBar';
 import TaskFilters from '../../components/TaskFilters/TaskFilters';
 import AddTaskButton from '../../components/AddTaskButton/AddTaskButton';
 import TaskList from '../../components/TaskList/TaskList';
-import TaskStats from '../../components/TaskStats/TaskStats';
 import { useTasks } from '../../hooks/useTasks';
+
 import './Home.scss';
+
+
 
 const Home = ({ 
   notificationCount = 0,
@@ -19,16 +21,14 @@ const Home = ({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Используем хук для управления задачами
-  const {
-    tasks,
-    addTask,
-    updateTask,
-    deleteTask,
-    toggleComplete,
-    getFilteredTasks,
-    getTasksStats
-  } = useTasks();
+  // Используем основной хук для управления задачами
+  const addTask = useTasks(state => state.addTask);
+  const updateTask = useTasks(state => state.updateTask);
+  const deleteTask = useTasks(state => state.deleteTask);
+  const toggleComplete = useTasks(state => state.toggleComplete);
+  const getFilteredTasks = useTasks(state => state.getFilteredTasks);
+  
+ 
 
   // Фильтрованные задачи на основе выбранных фильтров
   const filteredTasks = useMemo(() => {
@@ -40,7 +40,7 @@ const Home = ({
   }, [getFilteredTasks, selectedPriority, selectedCategory, searchQuery]);
 
   // Статистика задач
-  const stats = useMemo(() => getTasksStats(), [getTasksStats]);
+
 
   const handlePriorityChange = (priority) => {
     setSelectedPriority(priority);
@@ -91,10 +91,7 @@ const Home = ({
         notificationCount={notificationCount}
         onNotificationClick={onNotificationClick}
       />
-      
-      <div className="component-container">
-        <TaskStats stats={stats} />
-      </div>
+  
       
       <div className="home-page__content">
         <div className="component-container">

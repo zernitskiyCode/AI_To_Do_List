@@ -5,7 +5,6 @@ const TaskList = ({
   tasks = [], 
   onToggleComplete, 
   onDeleteTask, 
-  onUpdateTask 
 }) => {
   const [expandedTask, setExpandedTask] = useState(null);
 
