@@ -5,7 +5,9 @@ import SearchBar from '../../components/SearchBar/SearchBar';
 import TaskFilters from '../../components/TaskFilters/TaskFilters';
 import AddTaskButton from '../../components/AddTaskButton/AddTaskButton';
 import TaskList from '../../components/TaskList/TaskList';
+import AddTaskModal from '../../components/Modal/AddTaskModal';
 import { useTasks } from '../../hooks/useTasks';
+import { useModal } from '../../hooks/useModal';
 
 import './Home.scss';
 
@@ -20,6 +22,9 @@ const Home = ({
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Хук для управления модальным окном
+  const { isActive: isModalActive, toggle: toggleModal } = useModal();
 
   // Используем основной хук для управления задачами
   const addTask = useTasks(state => state.addTask);
@@ -56,9 +61,13 @@ const Home = ({
   };
 
 
-////ВАЖНОЕ НАДО ПОМЕНЯТЬ ЧЕРЕЗ МОДАЛЬНОЕ ОКНО!!!!!!!!!
+  // Новый обработчик для открытия модального окна
+  const handleAddTask = () => {
+    toggleModal();
+  };
 
-
+  // Старый код для добавления задачи (закомментирован)
+  /*
   const handleAddTask = () => {
     // Простая реализация добавления задачи
     // В будущем можно заменить на модальное окно
@@ -79,6 +88,7 @@ const Home = ({
     const newTask = addTask(taskData);
     console.log('Задача добавлена:', newTask);
   };
+  */
 
   const handleToggleComplete = (taskId) => {
     toggleComplete(taskId);
@@ -132,6 +142,12 @@ const Home = ({
           </div>
         </div>
       </div>
+
+      {/* Модальное окно для добавления задачи */}
+      <AddTaskModal 
+        isActive={isModalActive} 
+        onClose={toggleModal} 
+      />
     </div>
   );
 };

@@ -21,7 +21,6 @@ const APP_CONFIG = {
 
 
 const AppContent = () => {
-  
 
   const [user] = useState({
     name: 'Александр Иванов',
