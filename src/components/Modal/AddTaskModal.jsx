@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import './AddTaskModal.scss';
+import {usePortal} from '../../hooks/usePortal'
+import AddTaskForm from './AddTaskForm';
 
 const AddTaskModal = ({ isActive, onClose }) => {  
+
+  const { Portal } = usePortal();
 
   useEffect(() => {
     if (isActive) {
@@ -34,7 +37,8 @@ const AddTaskModal = ({ isActive, onClose }) => {
 
   if (!isActive) return null;
 
-  return createPortal(
+  return (
+    <Portal>
     <div className="add-task-modal" onClick={handleBackdropClick}>
       <div className="add-task-modal__content">
         <button 
@@ -45,14 +49,11 @@ const AddTaskModal = ({ isActive, onClose }) => {
           ×
         </button>
         <div className="add-task-modal__body">
-          {/* Здесь будет содержимое модального окна */}
-          <h2>Добавить задачу</h2>
-          <p>Модальное окно работает!</p>
+          <AddTaskForm onClose={onClose} />
         </div>
       </div>
     </div>
-    ,
-    document.getElementById('addTask_modal-root')  
+    </Portal>
   );
 };
 

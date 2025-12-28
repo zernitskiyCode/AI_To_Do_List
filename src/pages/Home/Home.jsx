@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import HomeHeader from '../../components/HomeHeader/HomeHeader';
 import VoiceInputCard from '../../components/VoiceInputCard/VoiceInputCard';
 import SearchBar from '../../components/SearchBar/SearchBar';
@@ -7,6 +7,7 @@ import AddTaskButton from '../../components/AddTaskButton/AddTaskButton';
 import TaskList from '../../components/TaskList/TaskList';
 import AddTaskModal from '../../components/Modal/AddTaskModal';
 import { useTasks } from '../../hooks/useTasks';
+import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { useModal } from '../../hooks/useModal';
 
 import './Home.scss';
@@ -23,28 +24,20 @@ const Home = ({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Хук для управления модальным окном
+
   const { isActive: isModalActive, toggle: toggleModal } = useModal();
 
-  // Используем основной хук для управления задачами
-  const addTask = useTasks(state => state.addTask);
+  // const addTask = useTasks(state => state.addTask);
   const updateTask = useTasks(state => state.updateTask);
   const deleteTask = useTasks(state => state.deleteTask);
   const toggleComplete = useTasks(state => state.toggleComplete);
-  const getFilteredTasks = useTasks(state => state.getFilteredTasks);
   
- 
+  const filteredTasks = useFilteredTasks({
+    priority: selectedPriority,
+    category: selectedCategory,
+    search: searchQuery
+  });
 
-  // Фильтрованные задачи на основе выбранных фильтров
-  const filteredTasks = useMemo(() => {
-    return getFilteredTasks({
-      priority: selectedPriority,
-      category: selectedCategory,
-      search: searchQuery
-    });
-  }, [getFilteredTasks, selectedPriority, selectedCategory, searchQuery]);
-
-  // Статистика задач
 
 
   const handlePriorityChange = (priority) => {
@@ -57,38 +50,15 @@ const Home = ({
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    onSearch?.(query); // Вызываем родительский обработчик если есть
+    onSearch?.(query); 
   };
 
 
-  // Новый обработчик для открытия модального окна
   const handleAddTask = () => {
     toggleModal();
   };
 
-  // Старый код для добавления задачи (закомментирован)
-  /*
-  const handleAddTask = () => {
-    // Простая реализация добавления задачи
-    // В будущем можно заменить на модальное окно
-    const title = prompt('Введите название задачи:');
-    if (!title || title.trim() === '') return;
 
-    const description = prompt('Введите описание задачи (необязательно):') || '';
-    
-    const taskData = {
-      title: title.trim(),
-      description: description.trim(),
-      priority: selectedPriority !== 'all' ? selectedPriority : 'medium',
-      category: selectedCategory !== 'all' ? selectedCategory : 'personal',
-      dueDate: null,
-      tags: []
-    };
-
-    const newTask = addTask(taskData);
-    console.log('Задача добавлена:', newTask);
-  };
-  */
 
   const handleToggleComplete = (taskId) => {
     toggleComplete(taskId);
@@ -143,7 +113,6 @@ const Home = ({
         </div>
       </div>
 
-      {/* Модальное окно для добавления задачи */}
       <AddTaskModal 
         isActive={isModalActive} 
         onClose={toggleModal} 
