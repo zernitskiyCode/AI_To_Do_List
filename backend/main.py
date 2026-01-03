@@ -3,129 +3,90 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import DictCursor
+from backend.database.models import init_db
+from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task
+from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate
+from fastapi import HTTPException
 
 app = FastAPI()
+#  {
+#   "name": "artem",
+#   "surname": "zernitskiy",
+#   "email": "aaz.zernitskiy@yandex.ru",
+#   "password": "Am012724"
+# }
+
+
+
 
 # ---------- CORS ----------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Разрешаем все источники для разработки
+    allow_origins=["*"],  # Пока все,потом http://localhost:5173/
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---------- DB ----------
-def get_conn():
-    return psycopg2.connect(
-        host="localhost",
-        user="postgres",
-        password="admin",
-        port=5432,
-        dbname="todo"
-    )
+# # ---------- DB ----------
+# def get_conn():
+#     return psycopg2.connect(
+#         host="localhost",
+#         user="postgres",
+#         password="admin",
+#         port=5432,
+#         dbname="todo"
+#     )
 
-# ---------- MODELS ----------
-class UserCreate(BaseModel):
-    firstName: str
-    lastName: str
+# # ---------- MODELS ----------
+# class UserCreate(BaseModel):
+#     firstName: str
+#     lastName: str
 
 # ---------- ROUTES ----------
-@app.get(
-    "/userinfo",
-    tags=["Информация о пользователе"],
-    summary="Получаем инфу о пользователях"
-)
-def read_user_info():
-    conn = get_conn()
-    cursor = conn.cursor(cursor_factory=DictCursor)
+# Инициализация бд
+@app.on_event("startup")
+def startup_event():
+    print("Сервер стартовал!")
+    init_db()
+    print("База данных готова!")
 
-    cursor.execute("SELECT * FROM users;")
-    rows = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    return rows
-
-
-@app.post(
-    "/registration",
-    tags=["Регистрация пользователя"],
-    summary="Регистрация"
-)
+# ---------- АВТОРИЗАЦИЯ ----------
+@app.post("/registration", tags=["Авторизация"], summary="Регистрация пользователя")
 def reg_user(user: UserCreate):
-    conn = get_conn()
-    cursor = conn.cursor(cursor_factory=DictCursor)
+    user_id = create_user(UserCreate)
+    return {"msg" : "Пользователь создан", "user_id" : user_id}
 
-    try:
-        cursor.execute(
-            """
-            INSERT INTO users (name, surname)
-            VALUES (%s, %s)
-            RETURNING user_id, name, surname;
-            """,
-            (user.firstName, user.lastName)
-        )
+@app.post("/login", tags=["Авторизация"], summary="Авторизация пользователя")
+def login_user(user: UserLogin):
+    user_id = authenticate_user(UserLogin)
+    return {"msg" : "Пользователь авторизован", "user_id" : user_id}
 
-        result = cursor.fetchone()
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-        
-        return {
-            "status": "success", 
-            "user_id": result['user_id'],
-            "firstName": result['name'],
-            "lastName": result['surname'],
-            "fullName": f"{result['name']} {result['surname']}"
-        }
-    except Exception as e:
-        conn.rollback()
-        cursor.close()
-        conn.close()
-        return {"status": "error", "message": str(e)}
+@app.get("/userinfo", tags=["Авторизация"], summary="Информация о пользователе")
+def read_user_info():
+    user_data = get_info()
+    return user_data
 
 
-@app.post(
-    "/login",
-    tags=["Логин пользователя"],
-    summary="Вход по имени и фамилии"
-)
-def login_user(user: UserCreate):
-    conn = get_conn()
-    cursor = conn.cursor(cursor_factory=DictCursor)
+# ---------- ЗАДАЧИ ----------
+@app.post("/createtask", tags=["Задачи"], summary="Создание задания")
+def create_task_for_user(task: TaskCreate, user_id: int):
+    task_id = create_task(task.title, task.description, user_id)
+    if not task_id:
+        raise HTTPException(status_code=400, detail="Task creation failed")
+    return {"message": "Task created successfully", "task_id": task_id}
 
-    try:
-        cursor.execute(
-            """
-            SELECT user_id, name, surname FROM users 
-            WHERE name = %s AND surname = %s
-            LIMIT 1;
-            """,
-            (user.firstName, user.lastName)
-        )
-
-        result = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        
-        if result:
-            return {
-                "status": "success",
-                "user_id": result['user_id'],
-                "firstName": result['name'],
-                "lastName": result['surname'],
-                "fullName": f"{result['name']} {result['surname']}"
-            }
-        else:
-            return {"status": "error", "message": "Пользователь не найден"}
-    except Exception as e:
-        cursor.close()
-        conn.close()
-        return {"status": "error", "message": str(e)}
+# Получение задач get_user_tasks
+@app.get("/gettask", tags=["Задачи"], summary="Получение заданий")
+def get_tasks(user_id: int):
+    tasks = get_user_tasks(user_id)  # Получить задачи пользователя из базы
+    if not tasks:
+        raise HTTPException(status_code=404, detail="Tasks not found")
+    return tasks
 
 
-@app.get("/", tags=["Тестирование"])
-def read_root():
-    return {"message": "server is working!"}
+
+# # @app.get("/", tags=["Тестирование"])
+# # def read_root():
+# #     return {"message": "server is working!"}
+
