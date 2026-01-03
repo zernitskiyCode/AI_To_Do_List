@@ -5,9 +5,13 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from backend.database.models import init_db
 # from backend.database.models import test
-from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task
+from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id
 from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate
 from fastapi import HTTPException
+
+
+# сделать хеширование
+import bcrypt
 
 app = FastAPI()
 #  {
@@ -84,7 +88,16 @@ def get_tasks(user_id: int):
     if not tasks:
         raise HTTPException(status_code=404, detail="Tasks not found")
     return tasks
-
+# Удаление задачи по id
+@app.delete("/tasks/{task_id}", tags=["Задачи"], summary="Удаление задачи")
+def delete_task(task_id: int):
+    try:
+        delete_task_id(task_id)
+        return {"message": "Задача успешно удалена"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
 
 
 

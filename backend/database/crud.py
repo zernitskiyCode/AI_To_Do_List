@@ -70,19 +70,48 @@ def create_task(task: TaskCreate, id: int):
     return task_id
 
 
-# Получение задачи
 # Переписать с join
+# Готово
+# Получение задачи
 def get_user_tasks(user_id: int):
         db = get_db_connection()
         cursor = db.cursor()
         # id, title, description, deadline, priority, created_at, completed, tag
         cursor.execute("SELECT task_id FROM task_users WHERE user_id = %s", (user_id,))
         task_id = cursor.fetchall
-        cursor.execute("""        
-            SELECT id, title, description, deadline, priority, created_at, completed, tag FROM task WHERE id = %s
-        """, (task_id,))
+        cursor.execute("""
+        SELECT t.id, t.title, t.description, t.deadline, t.priority, t.created_at, t.completed, t.tag
+        FROM task AS t
+        JOIN task_users AS tu ON t.id = tu.task_id
+        WHERE tu.user_id = %s
+    """, (user_id,))
 
         tasks = cursor.fetchall()
         cursor.close()
         db.close()
         return tasks
+
+#   Удаление задачи по id
+def delete_task_id(task_id: int):
+    db = get_db_connection()
+    cursor = db.cursor()
+    try:
+        # Проверяем, существует ли задача с указанным ID
+        cursor.execute("SELECT id FROM task WHERE id = %s", (task_id,))
+        task = cursor.fetchone()
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+
+        # Удаляем задачу из таблицы task_users
+        cursor.execute("DELETE FROM task_users WHERE task_id = %s", (task_id,))
+
+        # Удаляем задачу из таблицы task
+        cursor.execute("DELETE FROM task WHERE id = %s", (task_id,))
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
+    finally:
+        cursor.close()
+        db.close()
