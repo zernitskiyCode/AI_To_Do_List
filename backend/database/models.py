@@ -38,6 +38,8 @@ def init_db():
         db.close()
         print("База данных успешно инициализирована.")
     except Exception as e:
+        cursor.close()
+        db.close()
         print(f"Ошибка при инициализации базы данных: {e}")
 
 

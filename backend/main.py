@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import DictCursor
 from backend.database.models import init_db
+# from backend.database.models import test
 from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task
 from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate
 from fastapi import HTTPException
@@ -54,12 +55,12 @@ def startup_event():
 # ---------- АВТОРИЗАЦИЯ ----------
 @app.post("/registration", tags=["Авторизация"], summary="Регистрация пользователя")
 def reg_user(user: UserCreate):
-    user_id = create_user(UserCreate)
+    user_id = create_user(user)
     return {"msg" : "Пользователь создан", "user_id" : user_id}
 
 @app.post("/login", tags=["Авторизация"], summary="Авторизация пользователя")
 def login_user(user: UserLogin):
-    user_id = authenticate_user(UserLogin)
+    user_id = authenticate_user(user)
     return {"msg" : "Пользователь авторизован", "user_id" : user_id}
 
 @app.get("/userinfo", tags=["Авторизация"], summary="Информация о пользователе")
@@ -71,7 +72,7 @@ def read_user_info():
 # ---------- ЗАДАЧИ ----------
 @app.post("/createtask", tags=["Задачи"], summary="Создание задания")
 def create_task_for_user(task: TaskCreate, user_id: int):
-    task_id = create_task(task.title, task.description, user_id)
+    task_id = create_task(task, user_id)
     if not task_id:
         raise HTTPException(status_code=400, detail="Task creation failed")
     return {"message": "Task created successfully", "task_id": task_id}
@@ -86,7 +87,8 @@ def get_tasks(user_id: int):
 
 
 
-# # @app.get("/", tags=["Тестирование"])
-# # def read_root():
-# #     return {"message": "server is working!"}
+
+@app.get("/", tags=["Тестирование"])
+def read_root():
+    return {"message": "server is working!"}
 
