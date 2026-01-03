@@ -48,7 +48,7 @@ const Settings = ({
   ];
 
   return (
-    <>
+    <div className="settings-page">
       <div className="settings-container">
         <div className="settings-section">
           <h3 className="section-title">Аккаунт</h3>
@@ -129,7 +129,7 @@ const Settings = ({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

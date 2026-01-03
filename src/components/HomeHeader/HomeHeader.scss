@@ -1,12 +1,19 @@
+@import '../../styles/variables';
+
 .home-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 24px 32px;
-  margin-bottom: 32px;
+  padding: 32px 32px 40px;
+  margin-bottom: 0;
   background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
   width: 100%;
   box-sizing: border-box;
+
+  @include respond-to(sm) {
+    padding: 24px 20px 32px;
+    margin-bottom: 0;
+  }
 
   &__left {
     flex: 1;
@@ -23,18 +30,30 @@
       font-weight: 700;
       color: #FFFFFF;
       margin: 0;
+
+      @include respond-to(sm) {
+        font-size: 22px;
+      }
     }
   }
 
   &__icon {
     font-size: 24px;
     line-height: 1;
+
+    @include respond-to(sm) {
+      font-size: 20px;
+    }
   }
 
   &__date {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
     margin: 0;
+
+    @include respond-to(sm) {
+      font-size: 12px;
+    }
   }
 
   &__notifications {
@@ -45,6 +64,10 @@
     padding: 8px;
     transition: all 0.3s ease;
 
+    @include respond-to(sm) {
+      padding: 6px;
+    }
+
     &:hover {
       opacity: 0.8;
     }
@@ -53,6 +76,10 @@
   &__bell {
     font-size: 24px;
     display: block;
+
+    @include respond-to(sm) {
+      font-size: 20px;
+    }
   }
 
   &__badge {
@@ -71,5 +98,13 @@
     justify-content: center;
     padding: 0 4px;
     border: 2px solid #FFFFFF;
+
+    @include respond-to(sm) {
+      min-width: 16px;
+      height: 16px;
+      font-size: 9px;
+      top: 2px;
+      right: 2px;
+    }
   }
 }
