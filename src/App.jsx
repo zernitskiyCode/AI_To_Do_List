@@ -22,6 +22,18 @@ const AppContent = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authUser, setAuthUser] = useState(null);
 
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setAuthUser(userData);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Ошибка при загрузке пользователя:', error);
+      }
+    }
+  }, []);
 
   const handleAuthSuccess = (userData) => {
     setAuthUser(userData);

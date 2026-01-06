@@ -1,119 +1,103 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useMutation } from '@tanstack/react-query';
+import { LoginApi } from '../../api/loginApi';
 import './Auth.scss';
 
-const API_URL = 'http://localhost:8000';
+
+            // id SERIAL PRIMARY KEY,
+            // NAME TEXT NOT NULL,
+            // SURNAME TEXT NOT NULL,
+            // email TEXT NOT NULL UNIQUE,
+            // password TEXT NOT NULL,
 
 const Auth = ({ onAuthSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  // YUP
+  const schema = yup.object().shape({
+    firstName: yup.string()
+      .required('Имя обязательно')
+      .min(2, 'Слишком короткое имя'),
+    lastName: yup.string()
+      .required('Фамилия обязательна')
+      .min(3, 'Слишком короткая фамилия')
+  });
+
+  // RHF
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors }, 
+    reset 
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      firstName: '',
+      lastName: ''
+    },
+  });
+
+  // Mutation
+  const loginMutation = useMutation({
+    mutationFn: (data) => LoginApi.post('/login', data),
+    onSuccess: (response) => { 
+      localStorage.setItem('user', JSON.stringify(response.data));
+      onAuthSuccess(response.data);
+      reset();
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: (data) => LoginApi.post('/registration', data),
+    onSuccess: (response) => { 
+      localStorage.setItem('user', JSON.stringify(response.data));
+      onAuthSuccess(response.data);
+      reset();
+    },
+  });
+
+
+  const onSubmit = (data) => {
+    const mutation = isLogin ? loginMutation : registerMutation;
     
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('Пожалуйста, заполните имя и фамилию');
-      return;
-    }
+    mutation.reset();
 
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        localStorage.setItem('user', JSON.stringify(data));
-        onAuthSuccess(data);
-      } else {
-        setError(data.message || 'Ошибка при входе');
-      }
-    } catch (err) {
-      console.error('Ошибка при запросе:', err);
-      setError('Ошибка подключения к серверу');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('Пожалуйста, заполните имя и фамилию');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(`${API_URL}/registration`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        localStorage.setItem('user', JSON.stringify(data));
-        onAuthSuccess(data);
-      } else {
-        setError(data.message || 'Ошибка при регистрации');
-      }
-    } catch (err) {
-      console.error('Ошибка при запросе:', err);
-      setError('Ошибка подключения к серверу');
-    } finally {
-      setLoading(false);
-    }
+    mutation.mutate({
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim()
+    });
   };
 
   const handleToggleMode = () => {
     setIsLogin(!isLogin);
-    setError('');
-    setFirstName('');
-    setLastName('');
+    reset();
+
+    loginMutation.reset();
+    registerMutation.reset();
   };
 
-  return (
+  const activeMutation = isLogin ? loginMutation : registerMutation;
+
+   return (
     <div className="auth-container">
       <div className="auth-card">
         <h1 className="auth-title">AI To-Do List</h1>
         
-        <form onSubmit={isLogin ? handleLogin : handleRegister} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
           <div className="form-group">
             <label htmlFor="firstName">Имя</label>
             <input
               id="firstName"
               type="text"
               placeholder="Введите ваше имя"
-              value={firstName}
-              onChange={(e) => {
-                setFirstName(e.target.value);
-                setError('');
-              }}
+              {...register('firstName')}
               className="form-input"
             />
+            {errors.firstName && <div className="error-message">{errors.firstName.message}</div>}
           </div>
 
           <div className="form-group">
@@ -122,19 +106,24 @@ const Auth = ({ onAuthSuccess }) => {
               id="lastName"
               type="text"
               placeholder="Введите вашу фамилию"
-              value={lastName}
-              onChange={(e) => {
-                setLastName(e.target.value);
-                setError('');
-              }}
+              {...register('lastName')}
               className="form-input"
             />
+            {errors.lastName && <div className="error-message">{errors.lastName.message}</div>}
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {activeMutation.isError && (
+            <div className="error-message">
+              {activeMutation.error.response?.data?.message || 'Произошла ошибка'}
+            </div>
+          )}
 
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+          <button 
+            type="submit" 
+            className="auth-button" 
+            disabled={activeMutation.isPending}
+          >
+            {activeMutation.isPending ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
           </button>
         </form>
 
