@@ -1,12 +1,11 @@
 @import '../../styles/variables';
 
-.home-header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 32px 32px 40px;
   margin-bottom: 0;
-  background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
   width: 100%;
   box-sizing: border-box;
 
@@ -15,7 +14,7 @@
     margin-bottom: 0;
   }
 
-  &__left {
+  &__content {
     flex: 1;
   }
 
@@ -46,7 +45,7 @@
     }
   }
 
-  &__date {
+  &__subtitle {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
     margin: 0;
@@ -106,5 +105,18 @@
       top: 2px;
       right: 2px;
     }
+  }
+
+  // Варианты градиентов для разных страниц
+  &--default {
+    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+  }
+
+  &--stats {
+    background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  }
+
+  &--calendar {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   }
 }

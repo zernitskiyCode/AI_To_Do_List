@@ -1,6 +1,7 @@
 import StatCard from '../../components/StatCard/StatCard';
+import PageHeader from '../../components/PageHeader/PageHeader';
 import { useTaskState } from '../../hooks/useTaskState';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 
 
 
@@ -15,19 +16,52 @@ const Stats = ({ stats = {} }) => {
 
 
   const statCards = [
-    { label: 'Задачи', value: TaskStats.total ,valueColor:'#06c840ff' },
-    { label: 'Процент выполненых', value: TaskStats.completionRate > 0 ? `${TaskStats.completionRate} % `: '0',  valueColor:'#5d06c8ff'},
-    { label: 'Выполнено', value: TaskStats.completed , valueColor:'#06c840ff'},
-    { label: 'Дней подряд', value: daysInRow > 0 ? `${daysInRow} 🔥 ` : '0' , valueColor:'#f0bb1dff' },
+    { 
+      label: 'Задачи', 
+      value: TaskStats.total, 
+      type: 'total',
+      subtitle: 'Всего задач'
+    },
+    { 
+      label: 'Процент выполненых', 
+      value: TaskStats.completionRate > 0 ? `${TaskStats.completionRate}%` : '0%',  
+      type: 'completed',
+      subtitle: 'Выполнено'
+    },
+    { 
+      label: 'Выполнено', 
+      value: TaskStats.completed, 
+      type: 'ready',
+      subtitle: 'Задач готово'
+    },
+    { 
+      label: 'Дней подряд', 
+      value: daysInRow > 0 ? `${daysInRow}` : '0', 
+      type: 'streak',
+      subtitle: 'Дней активности'
+    },
   ];
   
 
   return (
     <div className="stats-page">
-      <div className="stats-grid">
-        {statCards.map((card, index) => (
-          <StatCard key={index} label={card.label} value={card.value}/>
-        ))}
+      <PageHeader 
+        title="Статистика"
+        subtitle="Ваша продуктивность"
+        variant="stats"
+    ></PageHeader>
+      
+      <div className="stats-page__content">
+        <div className="stats-grid">
+          {statCards.map((card, index) => (
+            <StatCard 
+              key={index} 
+              value={card.value} 
+              type={card.type}
+              subtitle={card.subtitle}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

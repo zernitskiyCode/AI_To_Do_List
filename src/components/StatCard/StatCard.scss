@@ -2,36 +2,92 @@
 @import '../../styles/_variables';
 
 .stat-card {
-  background: #FFFFFF;
   border-radius: $card-radius;
-  padding: $base-padding;
+  padding: $base-padding * 1.5;
   box-shadow: $shadow-md;
-  border: 1px solid #E5E7EB;
-  @include flex-between;
+  border: none;
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+  background: #f3f4f6; // Базовый fallback цвет
+
   
-  .stat-number {
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__icon {
+    position: relative;
+    left: -18px;
+    width: 28px;
+    height: 28px;
+    filter: brightness(0) invert(1); // Делает иконку белой
+    
+    @include respond-to(md) {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  &__emoji {
+    font-size: 24px;
+    line-height: 1;
+    
+    @include respond-to(md) {
+      font-size: 28px;
+    }
+  }
+  
+  &__value {
     font-size: 28px;
-    font-weight: 600;
-    color: color(success);
+    font-weight: 700;
+    color: #FFFFFF;
+    text-align: center;
     
     @include respond-to(md) {
       font-size: 32px;
     }
   }
-  
-  // Варианты карточек
-  &:nth-child(2) .stat-number {
-    color: color(accent);
+
+  &__subtitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    
+    @include respond-to(md) {
+      font-size: 16px;
+    }
   }
   
-  &:nth-child(3) .stat-number {
-    color: color(success);
+  // Варианты карточек с градиентами
+  &--completed {
+    background: #8B5CF6 !important; // Fallback цвет
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%) !important;
   }
-  
-  &:nth-child(4) .stat-number {
-    color: #F59E0B; // Оранжевый для огня
+
+  &--ready {
+    background: #10B981 !important; // Fallback цвет
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%) !important;
+  }
+
+  &--total {
+    background: #3B82F6 !important; // Fallback цвет
+    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%) !important;
+  }
+
+  &--streak {
+    background: #F59E0B !important; // Fallback цвет
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
   }
 }
+
+
