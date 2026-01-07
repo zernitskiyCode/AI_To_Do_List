@@ -46,6 +46,7 @@ const Stats = ({ stats = {} }) => {
   return (
     <div className="stats-page">
       <PageHeader 
+        icon = "📊"
         title="Статистика"
         subtitle="Ваша продуктивность"
         variant="stats"
