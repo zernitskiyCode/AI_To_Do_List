@@ -50,3 +50,6 @@ src/
 - React Router DOM 6
 - Vite
 - SCSS/Sass
+
+##Тестирование
+...
