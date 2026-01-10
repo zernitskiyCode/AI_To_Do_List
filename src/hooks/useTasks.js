@@ -13,6 +13,7 @@ export const useTasks = create(
         set(state => ({
           tasks: [newTask, ...state.tasks]
         }));
+        
         return newTask;
       },
       

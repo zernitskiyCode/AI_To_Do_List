@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { 
+  BrowserRouter as Router, 
+  Routes, 
+  Route, 
+  useNavigate 
+} from 'react-router-dom';
 import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
@@ -7,6 +12,9 @@ import Settings from './pages/Settings/Settings';
 import Stats from './pages/Stats/Stats';
 import Calendar from './pages/Calendar/Calendar';
 import './styles/style.scss';
+import Auth from './pages/Auth/Auth';
+import { useAuthStore } from './hooks/useAuthStore';
+
 
 const APP_CONFIG = {
   title: 'Русский Продукт',
@@ -18,39 +26,15 @@ const APP_CONFIG = {
   ],
 };
 
-const AppContent = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authUser, setAuthUser] = useState(null);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      try {
-        const userData = JSON.parse(savedUser);
-        setAuthUser(userData);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Ошибка при загрузке пользователя:', error);
-      }
-    }
-  }, []);
+const MainApp = () => {
+  const { user: authUser } = useAuthStore(); 
 
-  const handleAuthSuccess = (userData) => {
-    setAuthUser(userData);
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setAuthUser(null);
-    setIsAuthenticated(false);
-  };
-
-  const [user] = useState({
+  const user = {
     name: authUser?.fullName || 'Пользователь',
     email: authUser?.email || 'user@example.com',
     avatar: authUser?.firstName?.[0] + authUser?.lastName?.[0] || 'УУ',
-  });
+  };
 
   const [settings, setSettings] = useState({
     quietMode: true,
@@ -73,10 +57,7 @@ const AppContent = () => {
   return (
     <>
       <Routes>
-        <Route
-          path="/profile"
-          element={<Profile user={user} />}
-        />
+        <Route path="/profile" element={<Profile user={user} />} />
         <Route
           path="/settings"
           element={
@@ -107,10 +88,29 @@ const AppContent = () => {
   );
 };
 
+
+const AppContent = () => {
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/auth', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  return isAuthenticated ? <MainApp /> : null;
+};
+
+
 const App = () => {
   return (
     <Router>
-      <AppContent />
+      <Routes>
+        <Route path="/auth" element={<Auth />} />
+        
+        <Route path="/*" element={<AppContent />} />
+      </Routes>
     </Router>
   );
 };

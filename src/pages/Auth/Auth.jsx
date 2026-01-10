@@ -1,141 +1,148 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation } from '@tanstack/react-query';
-import { LoginApi } from '../../api/loginApi';
+import { useNavigate } from 'react-router-dom';
+import Api from '../../api/Api';
 import './Auth.scss';
+import { useAuthStore } from '../../hooks/useAuthStore';
+
+const Auth = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, login, register: registerUser } = useAuthStore(); 
+  
+
+  const [authMode, setAuthMode] = useState('login'); // login | register
 
 
-            // id SERIAL PRIMARY KEY,
-            // NAME TEXT NOT NULL,
-            // SURNAME TEXT NOT NULL,
-            // email TEXT NOT NULL UNIQUE,
-            // password TEXT NOT NULL,
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
-const Auth = ({ onAuthSuccess }) => {
-  const [isLogin, setIsLogin] = useState(true);
 
-  // YUP
-  const schema = yup.object().shape({
-    firstName: yup.string()
-      .required('Имя обязательно')
-      .min(2, 'Слишком короткое имя'),
-    lastName: yup.string()
-      .required('Фамилия обязательна')
-      .min(3, 'Слишком короткая фамилия')
+  const loginSchema = yup.object().shape({
+    email: yup.string().required('Email обязателен').email('Некорректный email'),
+    password: yup.string().required('Пароль обязателен').min(6, 'Минимум 6 символов'),
   });
 
-  // RHF
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors }, 
-    reset 
+  const registerSchema = yup.object().shape({
+    name: yup.string().required('Имя обязательно').min(2, 'Слишком короткое'),
+    surname: yup.string().required('Фамилия обязательна').min(2, 'Слишком короткая'),
+    email: yup.string().required('Email обязателен').email('Некорректный email'),
+    password: yup.string().required('Пароль обязателен').min(6, 'Минимум 6 символов'),
+  });
+
+
+  const schema = authMode === 'login' ? loginSchema : registerSchema;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: 'onChange',
+    mode: 'onSubmit',
     defaultValues: {
-      firstName: '',
-      lastName: ''
+      name: '',
+      surname: '',
+      email: '',
+      password: '',
     },
   });
 
-  // Mutation
-  const loginMutation = useMutation({
-    mutationFn: (data) => LoginApi.post('/login', data),
-    onSuccess: (response) => { 
-      localStorage.setItem('user', JSON.stringify(response.data));
-      onAuthSuccess(response.data);
+  const authMutation = useMutation({
+    mutationFn: (data) => {
+      const endpoint = authMode === 'login' ? '/login' : '/registration';
+      return Api.post(endpoint, data);
+      
+    },
+    onSuccess: (response) => {
+      const user = response.data;
+      
+      if (authMode === 'login') {
+        login(user, user.token);
+      } else {
+        registerUser(user, user.token);
+      }
+      
       reset();
+      navigate('/', { replace: true }); 
     },
   });
-
-  const registerMutation = useMutation({
-    mutationFn: (data) => LoginApi.post('/registration', data),
-    onSuccess: (response) => { 
-      localStorage.setItem('user', JSON.stringify(response.data));
-      onAuthSuccess(response.data);
-      reset();
-    },
-  });
-
 
   const onSubmit = (data) => {
-    const mutation = isLogin ? loginMutation : registerMutation;
-    
-    mutation.reset();
 
-    mutation.mutate({
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim()
-    });
+    const formattedData = {
+      ...data,
+      name: data.name?.trim(),
+      surname: data.surname?.trim(),
+      email: data.email.trim(),
+      password: data.password.trim(),
+    };
+
+    authMutation.mutate(formattedData);
   };
 
   const handleToggleMode = () => {
-    setIsLogin(!isLogin);
-    reset();
-
-    loginMutation.reset();
-    registerMutation.reset();
+    setAuthMode((prev) => (prev === 'login' ? 'register' : 'login'));
+    reset(); 
+    authMutation.reset();
   };
 
-  const activeMutation = isLogin ? loginMutation : registerMutation;
-
-   return (
+  return (
     <div className="auth-container">
       <div className="auth-card">
         <h1 className="auth-title">AI To-Do List</h1>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+          {authMode === 'register' && (
+            <>
+              <div className="form-group">
+                <label htmlFor="name">Имя</label>
+                <input id="name" type="text" placeholder="Ваше имя" {...register('name')} className="form-input" />
+                {errors.name && <div className="error-message">{errors.name.message}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="surname">Фамилия</label>
+                <input id="surname" type="text" placeholder="Ваша фамилия" {...register('surname')} className="form-input" />
+                {errors.surname && <div className="error-message">{errors.surname.message}</div>}
+              </div>
+            </>
+          )}
+
           <div className="form-group">
-            <label htmlFor="firstName">Имя</label>
-            <input
-              id="firstName"
-              type="text"
-              placeholder="Введите ваше имя"
-              {...register('firstName')}
-              className="form-input"
-            />
-            {errors.firstName && <div className="error-message">{errors.firstName.message}</div>}
+            <label htmlFor="email">Email</label>
+            <input id="email" type="email" placeholder="Ваш email" {...register('email')} className="form-input" />
+            {errors.email && <div className="error-message">{errors.email.message}</div>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="lastName">Фамилия</label>
-            <input
-              id="lastName"
-              type="text"
-              placeholder="Введите вашу фамилию"
-              {...register('lastName')}
-              className="form-input"
-            />
-            {errors.lastName && <div className="error-message">{errors.lastName.message}</div>}
+            <label htmlFor="password">Пароль</label>
+            <input id="password" type="password" placeholder="Ваш пароль" {...register('password')} className="form-input" />
+            {errors.password && <div className="error-message">{errors.password.message}</div>}
           </div>
 
-          {activeMutation.isError && (
+          {authMutation.isError && (
             <div className="error-message">
-              {activeMutation.error.response?.data?.message || 'Произошла ошибка'}
+              {authMutation.error.response?.data?.message || 'Ошибка'}
             </div>
           )}
 
-          <button 
-            type="submit" 
-            className="auth-button" 
-            disabled={activeMutation.isPending}
-          >
-            {activeMutation.isPending ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+          <button type="submit" className="auth-button" disabled={authMutation.isPending}>
+            {authMutation.isPending ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            {isLogin ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
-            <button 
-              type="button"
-              onClick={handleToggleMode}
-              className="toggle-button"
-            >
-              {isLogin ? 'Зарегистрируйтесь' : 'Войдите'}
+            {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
+            <button type="button" onClick={handleToggleMode} className="toggle-button">
+              {authMode === 'login' ? 'Зарегистрируйтесь' : 'Войдите'}
             </button>
           </p>
         </div>

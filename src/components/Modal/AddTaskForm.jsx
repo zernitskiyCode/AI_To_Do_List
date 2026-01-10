@@ -34,7 +34,7 @@ const AddTaskForm = ({ onClose }) => {
 //Validating
 const validateTaskName = (name) => {
   if (typeof name !== 'string') {
-    dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Минимум 3 символа' });
+    dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'не являеться строкой' });
     return false;
   }
   
@@ -45,16 +45,18 @@ const validateTaskName = (name) => {
     return false;
   }
   if (trimmed.length > 100) {
-    dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Минимум 3 символа' });
+    dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Максимум 100 символов' });
     return false;
   }
 
   if (/[<>\"'%;()&+]/.test(trimmed)) {
-    dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Минимум 3 символа' });
+    dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Используються недопустимые символы' });
     return false;
   }
   
- dispatch({ type: 'SET_ERROR', value: '' });
+
+
+  dispatch({ type: 'SET_ERROR', value: '' });
   return true;
 };
   //Datas
