@@ -46,7 +46,13 @@ main {
   padding: 0;
   padding-bottom: $nav-height + $base-padding;
 
-
+  &__content {
+    padding: $base-padding;
+    
+    @include respond-to(lg) {
+      padding: $base-padding * 2;
+    }
+  }
 
   &__tasks {
     padding: $base-padding 0;
@@ -55,6 +61,38 @@ main {
 
     @include respond-to(sm) {
       padding: 12px 0;
+    }
+  }
+}
+
+// Страница статистики - без отступов сверху, так как StatsHeader имеет свои отступы
+.stats-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: 0;
+  padding-bottom: $nav-height + $base-padding;
+
+  &__content {
+    padding: $base-padding;
+    
+    @include respond-to(lg) {
+      padding: $base-padding * 2;
+    }
+  }
+}
+
+// Страница календаря - без отступов сверху, так как PageHeader имеет свои отступы
+.calendar-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: 0;
+  padding-bottom: $nav-height + $base-padding;
+
+  &__content {
+    padding: $base-padding;
+    
+    @include respond-to(lg) {
+      padding: $base-padding * 2;
     }
   }
 }
@@ -127,9 +165,7 @@ main {
 
 // Общие стили для остальных страниц с отступами
 .profile-page,
-.settings-page,
-.stats-page,
-.calendar-page {
+.settings-page {
   background-color: color(bg);
   min-height: calc(100vh - #{$nav-height});
   padding: $base-padding;

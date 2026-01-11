@@ -1,152 +1,148 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import Api from '../../api/Api';
 import './Auth.scss';
+import { useAuthStore } from '../../hooks/useAuthStore';
 
-const API_URL = 'http://localhost:8000';
+const Auth = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, login, register: registerUser } = useAuthStore(); 
+  
 
-const Auth = ({ onAuthSuccess }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [authMode, setAuthMode] = useState('login'); // login | register
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('Пожалуйста, заполните имя и фамилию');
-      return;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
     }
+  }, [isAuthenticated, navigate]);
 
-    setLoading(true);
-    setError('');
 
-    try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        }),
-      });
+  const loginSchema = yup.object().shape({
+    email: yup.string().required('Email обязателен').email('Некорректный email'),
+    password: yup.string().required('Пароль обязателен').min(6, 'Минимум 6 символов'),
+  });
 
-      const data = await response.json();
+  const registerSchema = yup.object().shape({
+    name: yup.string().required('Имя обязательно').min(2, 'Слишком короткое'),
+    surname: yup.string().required('Фамилия обязательна').min(2, 'Слишком короткая'),
+    email: yup.string().required('Email обязателен').email('Некорректный email'),
+    password: yup.string().required('Пароль обязателен').min(6, 'Минимум 6 символов'),
+  });
 
-      if (data.status === 'success') {
-        localStorage.setItem('user', JSON.stringify(data));
-        onAuthSuccess(data);
+
+  const schema = authMode === 'login' ? loginSchema : registerSchema;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: 'onSubmit',
+    defaultValues: {
+      name: '',
+      surname: '',
+      email: '',
+      password: '',
+    },
+  });
+
+  const authMutation = useMutation({
+    mutationFn: (data) => {
+      const endpoint = authMode === 'login' ? '/login' : '/registration';
+      return Api.post(endpoint, data);
+      
+    },
+    onSuccess: (response) => {
+      const user = response.data;
+      
+      if (authMode === 'login') {
+        login(user, user.token);
       } else {
-        setError(data.message || 'Ошибка при входе');
+        registerUser(user, user.token);
       }
-    } catch (err) {
-      console.error('Ошибка при запросе:', err);
-      setError('Ошибка подключения к серверу');
-    } finally {
-      setLoading(false);
-    }
-  };
+      
+      reset();
+      navigate('/', { replace: true }); 
+    },
+  });
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('Пожалуйста, заполните имя и фамилию');
-      return;
-    }
+  const onSubmit = (data) => {
 
-    setLoading(true);
-    setError('');
+    const formattedData = {
+      ...data,
+      name: data.name?.trim(),
+      surname: data.surname?.trim(),
+      email: data.email.trim(),
+      password: data.password.trim(),
+    };
 
-    try {
-      const response = await fetch(`${API_URL}/registration`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.status === 'success') {
-        localStorage.setItem('user', JSON.stringify(data));
-        onAuthSuccess(data);
-      } else {
-        setError(data.message || 'Ошибка при регистрации');
-      }
-    } catch (err) {
-      console.error('Ошибка при запросе:', err);
-      setError('Ошибка подключения к серверу');
-    } finally {
-      setLoading(false);
-    }
+    authMutation.mutate(formattedData);
   };
 
   const handleToggleMode = () => {
-    setIsLogin(!isLogin);
-    setError('');
-    setFirstName('');
-    setLastName('');
+    setAuthMode((prev) => (prev === 'login' ? 'register' : 'login'));
+    reset(); 
+    authMutation.reset();
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h1 className="auth-title">AI To-Do List</h1>
-        
-        <form onSubmit={isLogin ? handleLogin : handleRegister} className="auth-form">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+          {authMode === 'register' && (
+            <>
+              <div className="form-group">
+                <label htmlFor="name">Имя</label>
+                <input id="name" type="text" placeholder="Ваше имя" {...register('name')} className="form-input" />
+                {errors.name && <div className="error-message">{errors.name.message}</div>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="surname">Фамилия</label>
+                <input id="surname" type="text" placeholder="Ваша фамилия" {...register('surname')} className="form-input" />
+                {errors.surname && <div className="error-message">{errors.surname.message}</div>}
+              </div>
+            </>
+          )}
+
           <div className="form-group">
-            <label htmlFor="firstName">Имя</label>
-            <input
-              id="firstName"
-              type="text"
-              placeholder="Введите ваше имя"
-              value={firstName}
-              onChange={(e) => {
-                setFirstName(e.target.value);
-                setError('');
-              }}
-              className="form-input"
-            />
+            <label htmlFor="email">Email</label>
+            <input id="email" type="email" placeholder="Ваш email" {...register('email')} className="form-input" />
+            {errors.email && <div className="error-message">{errors.email.message}</div>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="lastName">Фамилия</label>
-            <input
-              id="lastName"
-              type="text"
-              placeholder="Введите вашу фамилию"
-              value={lastName}
-              onChange={(e) => {
-                setLastName(e.target.value);
-                setError('');
-              }}
-              className="form-input"
-            />
+            <label htmlFor="password">Пароль</label>
+            <input id="password" type="password" placeholder="Ваш пароль" {...register('password')} className="form-input" />
+            {errors.password && <div className="error-message">{errors.password.message}</div>}
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {authMutation.isError && (
+            <div className="error-message">
+              {authMutation.error.response?.data?.message || 'Ошибка'}
+            </div>
+          )}
 
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
+          <button type="submit" className="auth-button" disabled={authMutation.isPending}>
+            {authMutation.isPending ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
 
         <div className="auth-footer">
           <p>
-            {isLogin ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
-            <button 
-              type="button"
-              onClick={handleToggleMode}
-              className="toggle-button"
-            >
-              {isLogin ? 'Зарегистрируйтесь' : 'Войдите'}
+            {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
+            <button type="button" onClick={handleToggleMode} className="toggle-button">
+              {authMode === 'login' ? 'Зарегистрируйтесь' : 'Войдите'}
             </button>
           </p>
         </div>

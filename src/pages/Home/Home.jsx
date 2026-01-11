@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import HomeHeader from '../../components/HomeHeader/HomeHeader';
+import PageHeader from '../../components/PageHeader/PageHeader';
 import VoiceInputCard from '../../components/VoiceInputCard/VoiceInputCard';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import TaskFilters from '../../components/TaskFilters/TaskFilters';
@@ -71,7 +71,12 @@ const Home = ({
 
   return (
     <div className="home-page">
-      <HomeHeader 
+      <PageHeader 
+        title="AI Задачи"
+        icon="⚡"
+        variant="default"
+        showDate={true}
+        showNotifications={true}
         notificationCount={notificationCount}
         onNotificationClick={onNotificationClick}
       />
