@@ -1,0 +1,221 @@
+@import '../../styles/variables';
+
+.add-task-form {
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: color(text);
+    margin-bottom: 24px;
+    text-align: center;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      gap: 16px;
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 16px;
+    font-weight: 500;
+    color: color(text);
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+
+  &__input {
+    padding: 12px 16px;
+    border: 2px solid color(border);
+    border-radius: 12px;
+    background: color(white);
+    color: color(text);
+    font-size: 16px;
+    @include transition();
+    box-shadow: $shadow-sm;
+
+    @media (max-width: 768px) {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: color(accent);
+      box-shadow: $shadow-md;
+    }
+
+    &::placeholder {
+      color: color(text-muted);
+    }
+  }
+
+  &__priority {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+    }
+  }
+
+  &__categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+    }
+  }
+
+  &__error {
+    color: #EF4444;
+    font-size: 14px;
+    margin-top: 4px;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  &__submit {
+    padding: 14px 24px;
+    background: color(accent);
+    color: color(white);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    @include transition();
+    box-shadow: $shadow-sm;
+    margin-top: 8px;
+
+    @media (max-width: 768px) {
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+
+    &:hover:not(:disabled) {
+      background: color(accent-dark);
+      transform: translateY(-1px);
+      box-shadow: $shadow-md;
+    }
+
+    &:disabled {
+      background: color(border);
+      color: color(text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: $shadow-sm;
+    }
+  }
+}
+
+// Переиспользуем стили кнопок из TaskFilters
+.priority-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 2px solid var(--priority-color);
+  border-radius: 20px;
+  background: color(white);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  @include transition();
+  box-shadow: $shadow-sm;
+
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+    font-size: 13px;
+    gap: 5px;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+
+    @media (max-width: 768px) {
+      width: 7px;
+      height: 7px;
+    }
+  }
+
+  &:hover {
+    background: var(--priority-color);
+    color: color(white) !important;
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &--active {
+    background: var(--priority-color);
+    color: color(white);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.category-filter {
+  padding: 10px 16px;
+  border: 2px solid color(border);
+  border-radius: 20px;
+  background: color(white);
+  color: color(text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  @include transition();
+  box-shadow: $shadow-sm;
+
+  @media (max-width: 768px) {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  &:hover {
+    background: color(accent);
+    color: color(white);
+    border-color: color(accent);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &--active {
+    background: color(accent);
+    color: color(white);
+    border-color: color(accent);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+}

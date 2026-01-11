@@ -1,0 +1,40 @@
+.search-bar {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  &__icon {
+    font-size: 20px;
+    color: #6B7280;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: inherit;
+    color: #1F2937;
+    background: transparent;
+
+    @media (max-width: 768px) {
+      font-size: 15px;
+    }
+
+    &::placeholder {
+      color: #6B7280;
+    }
+  }
+}
