@@ -44,7 +44,7 @@ export const useTasks = create(
       
     }),
     {
-      name: 'ai_todo_tasks', // ключ для localStorage
+      name: 'task-storage', // ключ для localStorage
       // Можно добавить дополнительные опции persist если нужно
       partialize: (state) => ({ tasks: state.tasks }), // сохраняем только tasks
     }

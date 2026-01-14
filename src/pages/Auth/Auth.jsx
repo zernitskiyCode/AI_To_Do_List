@@ -45,7 +45,7 @@ const Auth = () => {
     reset,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: 'onSubmit',
+    mode: 'onTouched',
     defaultValues: {
       name: '',
       surname: '',
@@ -62,7 +62,6 @@ const Auth = () => {
     },
     onSuccess: (response) => {
       const user = response.data;
-      
       if (authMode === 'login') {
         login(user, user.token);
       } else {
@@ -93,23 +92,27 @@ const Auth = () => {
     authMutation.reset();
   };
 
+  const handleForgotPassword = () => {
+    // TODO: Логика восстановления пароля
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h1 className="auth-title">AI To-Do List</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form" noValidate>
           {authMode === 'register' && (
             <>
               <div className="form-group">
                 <label htmlFor="name">Имя</label>
-                <input id="name" type="text" placeholder="Ваше имя" {...register('name')} className="form-input" />
+                <input id="name" type="text" placeholder="Ваше имя" {...register('name')} className="form-input" tabIndex={1} />
                 {errors.name && <div className="error-message">{errors.name.message}</div>}
               </div>
 
               <div className="form-group">
                 <label htmlFor="surname">Фамилия</label>
-                <input id="surname" type="text" placeholder="Ваша фамилия" {...register('surname')} className="form-input" />
+                <input id="surname" type="text" placeholder="Ваша фамилия" {...register('surname')} className="form-input" tabIndex={2} />
                 {errors.surname && <div className="error-message">{errors.surname.message}</div>}
               </div>
             </>
@@ -117,13 +120,13 @@ const Auth = () => {
 
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input id="email" type="email" placeholder="Ваш email" {...register('email')} className="form-input" />
+            <input id="email" type="email" placeholder="Ваш email" {...register('email')} className="form-input" autoComplete="off" tabIndex={authMode === 'register' ? 3 : 1} />
             {errors.email && <div className="error-message">{errors.email.message}</div>}
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Пароль</label>
-            <input id="password" type="password" placeholder="Ваш пароль" {...register('password')} className="form-input" />
+            <input id="password" type="password" placeholder="Ваш пароль" {...register('password')} className="form-input" tabIndex={authMode === 'register' ? 4 : 2} />
             {errors.password && <div className="error-message">{errors.password.message}</div>}
           </div>
 
@@ -133,7 +136,7 @@ const Auth = () => {
             </div>
           )}
 
-          <button type="submit" className="auth-button" disabled={authMutation.isPending}>
+          <button type="submit" className="auth-button" disabled={authMutation.isPending} tabIndex={authMode === 'register' ? 5 : 3}>
             {authMutation.isPending ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
@@ -141,10 +144,15 @@ const Auth = () => {
         <div className="auth-footer">
           <p>
             {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
-            <button type="button" onClick={handleToggleMode} className="toggle-button">
+            <button type="button" onClick={handleToggleMode} className="toggle-button" tabIndex={authMode === 'register' ? 6 : 4}>
               {authMode === 'login' ? 'Зарегистрируйтесь' : 'Войдите'}
             </button>
           </p>
+          {authMode === 'login' && (
+            <button type="button" onClick={handleForgotPassword} className="forgot-button" tabIndex={5}>
+              Забыли пароль?
+            </button>
+          )}
         </div>
       </div>
     </div>

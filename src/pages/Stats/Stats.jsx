@@ -15,7 +15,7 @@ const Stats = ({ stats = {} }) => {
   const daysInRow = 1;//позже кастомный хук и запрос на бд или локальное хранение
 
 
-  const statCards = [
+  const statCards = [ 
     { 
       label: 'Задачи', 
       value: TaskStats.total, 
