@@ -17,10 +17,7 @@ const StatCard = ({ value, type, subtitle }) => {
     }
   };
 
-  const cardClasses = `stat-card ${type ? `stat-card--${type}` : ''}`.trim();
-  
-  // Отладка - можно убрать позже
-  console.log('StatCard type:', type, 'classes:', cardClasses);
+  const cardClasses = `stat-card stat-card--${type}`;
 
   return (
     <div className={cardClasses}>

@@ -9,8 +9,10 @@ const Profile = ({
   const {
     name = 'Пользователь',
     email = '',
-    avatar = 'П',
+    surname,
   } = user;
+
+  const avatar = name[0] + surname[0];
 
   const handlePremiumClick = () => {
     if (onPremiumClick) {

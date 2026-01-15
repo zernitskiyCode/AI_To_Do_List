@@ -14,6 +14,7 @@ import Calendar from './pages/Calendar/Calendar';
 import './styles/style.scss';
 import Auth from './pages/Auth/Auth';
 import { useAuthStore } from './hooks/useAuthStore';
+import Api from './api/Api';
 
 
 const APP_CONFIG = {
@@ -29,11 +30,14 @@ const APP_CONFIG = {
 
 const MainApp = () => {
   const { user: authUser } = useAuthStore(); 
-
+ 
+  const UserInfo = Api.get('/getInfoProfile', {
+  params: { user_id: authUser.userId }
+})
   const user = {
-    name: authUser?.fullName || 'Пользователь',
-    email: authUser?.email || 'user@example.com',
-    avatar: authUser?.firstName?.[0] + authUser?.lastName?.[0] || 'УУ',
+    name: UserInfo?.user_name || 'Vladimir',
+    email: UserInfo?.user_email || 'user@example.com',
+    surname: UserInfo?.user_surname || 'Vladiirovich'
   };
 
   const [settings, setSettings] = useState({
@@ -69,7 +73,9 @@ const MainApp = () => {
             />
           }
         />
-        <Route path="/stats" element={<Stats />} />
+        <Route path="/stats" element={<Stats 
+        
+        />} />
         <Route
           path="/"
           element={
