@@ -5,29 +5,20 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from backend.database.models import init_db
 # from backend.database.models import test
-from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id
+from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile
 from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate
 from fastapi import HTTPException
-
-
-# сделать хеширование
 import bcrypt
 
-app = FastAPI()
-#  {
-#   "name": "artem",
-#   "surname": "zernitskiy",
-#   "email": "aaz.zernitskiy@yandex.ru",
-#   "password": "Am012724"
-# }
 
+app = FastAPI()
 
 
 
 # ---------- CORS ----------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Пока все,потом http://localhost:5173/
+    allow_origins=["http://localhost:5173"],  # Пока все,потом http://localhost:5173/
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -98,6 +89,15 @@ def delete_task(task_id: int):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
+# передаешь id пользователя, получаешь name, surname, email
+@app.get("/getInfoProfile", tags=["Информация"], summary="Получение name, surname, email")
+def getinfouser(user_id : int):
+    try:
+        data = get_info_profile(user_id)
+        print(data)
+        return data
+    except:
+        raise HTTPException(status_code=400, detail="Ошибка при получении информации")
 
 
 

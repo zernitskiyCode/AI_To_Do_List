@@ -64,6 +64,16 @@ def get_info(user_id : int):
             if not user:
                 raise HTTPException(status_code=404, detail="Пользователь не найден")
             return dict(user)
+# передаешь id пользователя, получаешь name, surname, email
+def get_info_profile(user_id : int):
+    with get_db_connection() as db:
+        with db.cursor() as cursor:
+            cursor.execute("""SELECT name, surname, email FROM users WHERE ID =%s""", (user_id, )) 
+            data = cursor.fetchall()
+            if data:
+                return data
+            else:
+                raise HTTPException(status_code=404, detail="Пользователь не найден")
 
 
 # создание задачи
