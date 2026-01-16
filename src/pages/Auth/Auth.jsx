@@ -62,6 +62,7 @@ const Auth = () => {
     },
     onSuccess: (response) => {
       const user = response.data;
+      console.log(user);
       if (authMode === 'login') {
         login(user, user.token);
       } else {

@@ -30,9 +30,11 @@ const APP_CONFIG = {
 
 const MainApp = () => {
   const { user: authUser } = useAuthStore(); 
+
+
  
   const UserInfo = Api.get('/getInfoProfile', {
-  params: { user_id: authUser.userId }
+  params: { user_id: authUser.user.user_id }
 })
   const user = {
     name: UserInfo?.user_name || 'Vladimir',
