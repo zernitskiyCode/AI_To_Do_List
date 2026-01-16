@@ -14,6 +14,7 @@ import Calendar from './pages/Calendar/Calendar';
 import './styles/style.scss';
 import Auth from './pages/Auth/Auth';
 import { useAuthStore } from './hooks/useAuthStore';
+import Api from './api/Api';
 
 
 const APP_CONFIG = {
@@ -29,12 +30,25 @@ const APP_CONFIG = {
 
 const MainApp = () => {
   const { user: authUser } = useAuthStore(); 
+  const [user, setUser] = useState(null); // Начальное значение null
+ 
+useEffect(() => {
+    Api.get('/getInfoProfile', {
+      params: { user_id: authUser.user_id }
+    }).then(UserInfo => {
+      const data = UserInfo.data;
+      console.log(data);
+      // Сохраняем данные в state
+      setUser({
+        name: data[0],
+        email: data[2],
+        surname: data[1]
+      });
+    });
+  }, [authUser.user_id]);
 
-  const user = {
-    name: authUser?.fullName || 'Пользователь',
-    email: authUser?.email || 'user@example.com',
-    avatar: authUser?.firstName?.[0] + authUser?.lastName?.[0] || 'УУ',
-  };
+
+  console.log(user)
 
   const [settings, setSettings] = useState({
     quietMode: true,
@@ -69,7 +83,9 @@ const MainApp = () => {
             />
           }
         />
-        <Route path="/stats" element={<Stats />} />
+        <Route path="/stats" element={<Stats 
+        
+        />} />
         <Route
           path="/"
           element={

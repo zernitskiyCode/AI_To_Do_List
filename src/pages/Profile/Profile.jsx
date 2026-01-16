@@ -1,17 +1,21 @@
 import { Link } from 'react-router-dom';
 
 const Profile = ({ 
-  user = {},
+  user,
   onPremiumClick,
   onRefresh,
   onLogout
 }) => {
+  // Если user null или undefined — используем пустой объект
   const {
     name = 'Пользователь',
     email = '',
-    avatar = 'П',
+    surname = '',
   } = user;
 
+  // Безопасное создание аватара (проверка на undefined)
+  const avatar = (name?.[0]  + '') + (surname?.[0] + '');
+  
   const handlePremiumClick = () => {
     if (onPremiumClick) {
       onPremiumClick();
