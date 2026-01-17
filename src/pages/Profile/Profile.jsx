@@ -1,19 +1,43 @@
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../../hooks/useAuthStore';
+import { useUserProfile } from '../../hooks/useUserProfile';
 
 const Profile = ({ 
-  user,
   onPremiumClick,
   onRefresh,
   onLogout
 }) => {
-  // Если user null или undefined — используем пустой объект
+  const { user: authUser } = useAuthStore();
+  const { data: user, isLoading, error, refetch } = useUserProfile(authUser?.user_id);
+
+
+  //CДелать UI для этого
+  if (isLoading) {
+    return (
+      <div className="profile-page">
+        <div className="profile-card">
+          <p>Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="profile-page">
+        <div className="profile-card">
+          <p>Ошибка загрузки профиля</p>
+        </div>
+      </div>
+    );
+  }
+
+
   const {
     name = 'Пользователь',
     email = '',
     surname = '',
-  } = user;
-
-  // Безопасное создание аватара (проверка на undefined)
+  } = user || {};
   const avatar = (name?.[0]  + '') + (surname?.[0] + '');
   
   const handlePremiumClick = () => {
@@ -23,6 +47,7 @@ const Profile = ({
   };
 
   const handleRefresh = () => {
+    refetch();
     if (onRefresh) {
       onRefresh();
     }
