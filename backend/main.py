@@ -59,8 +59,8 @@ def login_user(user: UserLogin):
     return {"msg" : "Пользователь авторизован", "user_id" : user_id}
 
 @app.get("/userinfo", tags=["Авторизация"], summary="Информация о пользователе")
-def read_user_info():
-    user_data = get_info()
+def read_user_info(user_id : int):
+    user_data = get_info(user_id)
     return user_data
 
 
@@ -93,7 +93,7 @@ def delete_task(task_id: int):
 @app.get("/getInfoProfile", tags=["Информация"], summary="Получение name, surname, email")
 def getinfouser(user_id : int):
     try:
-        data = get_info_profile(user_id)
+        data = get_info_profile(user_id)[0]
         print(data)
         return data
     except:
@@ -104,4 +104,3 @@ def getinfouser(user_id : int):
 @app.get("/", tags=["Тестирование"])
 def read_root():
     return {"message": "server is working!"}
-

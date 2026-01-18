@@ -5,6 +5,7 @@ import {
   Route, 
   useNavigate 
 } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
@@ -14,7 +15,6 @@ import Calendar from './pages/Calendar/Calendar';
 import './styles/style.scss';
 import Auth from './pages/Auth/Auth';
 import { useAuthStore } from './hooks/useAuthStore';
-import Api from './api/Api';
 
 
 const APP_CONFIG = {
@@ -27,20 +27,10 @@ const APP_CONFIG = {
   ],
 };
 
+const queryClient = new QueryClient();
+
 
 const MainApp = () => {
-  const { user: authUser } = useAuthStore(); 
-
-
- 
-  const UserInfo = Api.get('/getInfoProfile', {
-  params: { user_id: authUser.user.user_id }
-})
-  const user = {
-    name: UserInfo?.user_name || 'Vladimir',
-    email: UserInfo?.user_email || 'user@example.com',
-    surname: UserInfo?.user_surname || 'Vladiirovich'
-  };
 
   const [settings, setSettings] = useState({
     quietMode: true,
@@ -63,7 +53,7 @@ const MainApp = () => {
   return (
     <>
       <Routes>
-        <Route path="/profile" element={<Profile user={user} />} />
+        <Route path="/profile" element={<Profile />} />
         <Route
           path="/settings"
           element={
@@ -113,13 +103,15 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        
-        <Route path="/*" element={<AppContent />} />
-      </Routes>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 };
 
