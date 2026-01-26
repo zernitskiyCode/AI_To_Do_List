@@ -162,6 +162,9 @@
   text-align: center;
   color: color(text-light);
   font-size: map-get($font-sizes, caption);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 
   p {
     margin: 0;
@@ -187,5 +190,21 @@
 
   &:hover {
     color: darken(color(accent), 10%);
+  }
+}
+
+.forgot-button {
+  background: none;
+  border: none;
+  color: color(text-light);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 0;
+  font-size: map-get($font-sizes, caption);
+  text-decoration: underline;
+  @include transition();
+
+  &:hover {
+    color: color(accent);
   }
 }

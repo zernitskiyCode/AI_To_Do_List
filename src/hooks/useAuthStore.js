@@ -17,3 +17,6 @@ export const useAuthStore = create(
 
     )
 )
+
+
+//user.user_id

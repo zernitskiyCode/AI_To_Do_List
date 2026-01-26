@@ -5,6 +5,7 @@ import {
   Route, 
   useNavigate 
 } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
@@ -26,15 +27,10 @@ const APP_CONFIG = {
   ],
 };
 
+const queryClient = new QueryClient();
+
 
 const MainApp = () => {
-  const { user: authUser } = useAuthStore(); 
-
-  const user = {
-    name: authUser?.fullName || 'Пользователь',
-    email: authUser?.email || 'user@example.com',
-    avatar: authUser?.firstName?.[0] + authUser?.lastName?.[0] || 'УУ',
-  };
 
   const [settings, setSettings] = useState({
     quietMode: true,
@@ -57,7 +53,7 @@ const MainApp = () => {
   return (
     <>
       <Routes>
-        <Route path="/profile" element={<Profile user={user} />} />
+        <Route path="/profile" element={<Profile />} />
         <Route
           path="/settings"
           element={
@@ -69,7 +65,9 @@ const MainApp = () => {
             />
           }
         />
-        <Route path="/stats" element={<Stats />} />
+        <Route path="/stats" element={<Stats 
+        
+        />} />
         <Route
           path="/"
           element={
@@ -105,13 +103,15 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        
-        <Route path="/*" element={<AppContent />} />
-      </Routes>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 };
 

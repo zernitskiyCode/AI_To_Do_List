@@ -1,7 +1,9 @@
 from backend.database.db_connection import get_db_connection
-from backend.schemas import UserCreate, UserLogin, TaskCreate
+from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskUpdate
 from fastapi import HTTPException
 import bcrypt
+from backend.auth import security
+from authx import AuthX, AuthXConfig
 
 # Добавление пользователя
 def create_user(user: UserCreate):
@@ -25,7 +27,9 @@ def create_user(user: UserCreate):
                 )
                 user_id = cursor.fetchone()[0]
                 db.commit()
-                return user_id
+                token = security.create_access_token(uid=str(user_id))
+                # return {"access_token": token}
+                return token
 
             except Exception as e:
                 db.rollback()
@@ -43,15 +47,34 @@ def authenticate_user(user: UserLogin):
             if not row:
                 raise HTTPException(status_code=404, detail="Пользователь не найден")
 
-            db_hashed_password, id_user = row
+            db_hashed_password, user_id = row
 
             # 2. Проверяем пароль
             if bcrypt.checkpw(user.password.encode('utf-8'), db_hashed_password.encode('utf-8')):
-                # Пароль верный → возвращаем id и статус 200
-                return {"user_id": id_user, "status": "ok"}
+                # Пароль верный → возвращаем token
+                token = security.create_access_token(uid=str(user_id))
+                # return {"access_token": token}
+                return token
             else:
                 raise HTTPException(status_code=401, detail="Неверный пароль")
-
+            
+def get_user_by_id(user_id: int):
+    """Берет пользователя из БД по id"""
+    with get_db_connection() as db:
+        with db.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, name, surname, email FROM users WHERE id = %s",
+                (user_id,)
+            )
+            user = cursor.fetchone()
+            if not user:
+                return None
+            return {
+                "id": user[0],
+                "name": user[1],
+                "surname": user[2],
+                "email": user[3]
+            }
 
 # Получение информации о пользователе по id
 def get_info(user_id : int):
@@ -74,9 +97,7 @@ def get_info_profile(user_id : int):
                 return data
             else:
                 raise HTTPException(status_code=404, detail="Пользователь не найден")
-
-
-# создание задачи
+            # создание задачи
 def create_task(task: TaskCreate, user_id: int):
     with get_db_connection() as db:
         with db.cursor() as cursor:
@@ -146,16 +167,31 @@ def delete_task_id(task_id: int):
                 db.rollback()
                 raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
 
+def update_task(task_id: int, data: TaskUpdate, user_id: int):
+    with get_db_connection() as db:
+        with db.cursor() as cursor:
+            #  Проверяем, что задача принадлежит пользователю
+            cursor.execute(
+                "SELECT 1 FROM task_users WHERE task_id = %s AND user_id = %s",
+                (task_id, user_id)
+            )
+            if not cursor.fetchone():
+                raise HTTPException(status_code=403, detail="Нет доступа к задаче")
+            
+            # Берём только переданные поля
+            update_data = data.model_dump(exclude_unset=True)
+            if not update_data:
+                raise HTTPException(status_code=400, detail="Нет данных для обновления")
 
-# Статистика пользователя
-# def get_user_stats(user_id : int):
-#     with get_db_connection as db:
-#         with db.cursor() as cursor:
-#             try:
-#                 cursor.execute("""SELECT COUNT(*) FROM task_users WHERE user_id = %s""", (user_id,))
-#                 count = cursor.fetchone()
-#                 cursor.execute("""SELECT COUNT(*) FROM task_users WHERE user_id = %s""", (user_id,))
-#                 success = cursor.fetchone()
+            #  Формируем SET часть SQL
+            # Хуйня ебучая разобраться и переписать
+            fields = [f"{key} = %s" for key in update_data.keys()]
+            values = list(update_data.values())
+            values.append(task_id)  # id для WHERE
 
-#             except:
-#                 pass
+            query = f"UPDATE task SET {', '.join(fields)} WHERE id = %s"
+            cursor.execute(query, values)
+            db.commit()
+            # Хуйня ебучая разобраться и переписать
+
+            return {"message": "Задача успешно обновлена"}
