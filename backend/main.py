@@ -1,43 +1,36 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import DictCursor
 from backend.database.models import init_db
 # from backend.database.models import test
-from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile
-from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate
-from fastapi import HTTPException
-import bcrypt
+from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile, update_task
+from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate, TaskUpdate
+# from fastapi import HTTPException
+from backend.dependencies import get_current_user_id
+from backend.auth import config
+from backend.auth import security
+from backend.dependencies import get_user_by_id
 
 
 app = FastAPI()
+
+app = FastAPI()
+
+# security.set_user_model_callback(get_user_by_id)
 
 
 
 # ---------- CORS ----------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Пока все,потом http://localhost:5173/
+    allow_origins=["http://localhost:5173"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# # ---------- DB ----------
-# def get_conn():
-#     return psycopg2.connect(
-#         host="localhost",
-#         user="postgres",
-#         password="admin",
-#         port=5432,
-#         dbname="todo"
-#     )
-
-# # ---------- MODELS ----------
-# class UserCreate(BaseModel):
-#     firstName: str
-#     lastName: str
 
 # ---------- ROUTES ----------
 # Инициализация бд
@@ -49,24 +42,53 @@ def startup_event():
 
 # ---------- АВТОРИЗАЦИЯ ----------
 @app.post("/registration", tags=["Авторизация"], summary="Регистрация пользователя")
-def reg_user(user: UserCreate):
-    user_id = create_user(user)
-    return {"msg" : "Пользователь создан", "user_id" : user_id}
+def reg_user(user: UserCreate, response:Response):
+    token = create_user(user)
+    # response.set_cookie(config.JWT_ACCESS_COOKIE_NAME)
+    response.set_cookie(
+        key="my_access_token",  # имя куки
+        value=token,            # сам JWT
+        httponly=True,          # нельзя читать JS
+        max_age=3600*24*7       # срок действия, например 7 дней
+    )
+    return {"msg" : "Пользователь создан", "access_token" : token}
 
 @app.post("/login", tags=["Авторизация"], summary="Авторизация пользователя")
-def login_user(user: UserLogin):
-    user_id = authenticate_user(user)
-    return {"msg" : "Пользователь авторизован", "user_id" : user_id}
+def login_user(user: UserLogin, response:Response):
+    token = authenticate_user(user)
+    response.set_cookie(
+        key="my_access_token",  # имя куки
+        value=token,            # сам JWT
+        httponly=True,          # нельзя читать JS
+        max_age=3600*24*365      # срок действия, например 7 дней
+    )
+    security.set_access_cookies(
+        response=response,
+        token=token
+    )
+
+    return {"msg" : "Пользователь авторизован", "access_token" : token}
 
 @app.get("/userinfo", tags=["Авторизация"], summary="Информация о пользователе")
-def read_user_info(user_id : int):
+def read_user_info(user_id : int = Depends(get_current_user_id)):
     user_data = get_info(user_id)
     return user_data
 
+@app.post("logout", tags=["Авторизация"], summary="Выход")
+def log_out(response:Response):
+    response.delete_cookie(config.JWT_ACCESS_COOKIE_NAME)
+    return {"msg" : "Выход выполнен"}
+
+@app.get("me", tags=["Авторизация"], summary="Проверка авторизации, возвращается id либо 401 - не авторризован")
+def me(user_id: int = Depends(get_current_user_id)):
+    if user_id:
+        return user_id
+    else:
+        raise HTTPException(status_code=401, detail="Не авторизован.")
 
 # ---------- ЗАДАЧИ ----------
 @app.post("/createtask", tags=["Задачи"], summary="Создание задания")
-def create_task_for_user(task: TaskCreate, user_id: int):
+def create_task_for_user(task: TaskCreate, user_id : int = Depends(get_current_user_id)):
     task_id = create_task(task, user_id)
     if not task_id:
         raise HTTPException(status_code=400, detail="Task creation failed")
@@ -74,7 +96,7 @@ def create_task_for_user(task: TaskCreate, user_id: int):
 
 # Получение задач get_user_tasks
 @app.get("/gettask", tags=["Задачи"], summary="Получение заданий")
-def get_tasks(user_id: int):
+def get_tasks(user_id : int = Depends(get_current_user_id)):
     tasks = get_user_tasks(user_id)  # Получить задачи пользователя из базы
     if not tasks:
         raise HTTPException(status_code=404, detail="Tasks not found")
@@ -92,6 +114,19 @@ def delete_task(task_id: int):
 # передаешь id пользователя, получаешь name, surname, email
 @app.get("/getInfoProfile", tags=["Информация"], summary="Получение name, surname, email")
 def getinfouser(user_id : int):
+    try:
+        data = get_info_profile(user_id)[0]
+        print(data)
+        return data
+    except:
+        raise HTTPException(status_code=400, detail="Ошибка при получении информации")
+
+@app.patch("/tasks/{task_id}", tags=["Задачи"], summary="Обновление задачи")
+def edit_task(task_id: int, data: TaskUpdate, user_id : int = Depends(get_current_user_id)):
+    return update_task(task_id, data, user_id)
+# передаешь id пользователя, получаешь name, surname, email
+@app.get("/getInfoProfile", tags=["Информация"], summary="Получение name, surname, email")
+def getinfouser(user_id : int = Depends(get_current_user_id)):
     try:
         data = get_info_profile(user_id)[0]
         print(data)

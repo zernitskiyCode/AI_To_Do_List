@@ -9,6 +9,10 @@ const Api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+<<<<<<< HEAD
+    withCredentials: true
+=======
+>>>>>>> origin/main
 })
 
 
