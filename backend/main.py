@@ -16,6 +16,7 @@ from backend.dependencies import get_user_by_id
 
 app = FastAPI()
 
+app = FastAPI()
 
 # security.set_user_model_callback(get_user_by_id)
 
@@ -110,6 +111,15 @@ def delete_task(task_id: int):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
+# передаешь id пользователя, получаешь name, surname, email
+@app.get("/getInfoProfile", tags=["Информация"], summary="Получение name, surname, email")
+def getinfouser(user_id : int):
+    try:
+        data = get_info_profile(user_id)[0]
+        print(data)
+        return data
+    except:
+        raise HTTPException(status_code=400, detail="Ошибка при получении информации")
 
 @app.patch("/tasks/{task_id}", tags=["Задачи"], summary="Обновление задачи")
 def edit_task(task_id: int, data: TaskUpdate, user_id : int = Depends(get_current_user_id)):

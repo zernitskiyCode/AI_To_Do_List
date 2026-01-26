@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000';
 
+
+
 const Api = axios.create({
     baseURL: API_URL,  
     headers: {
@@ -12,6 +14,7 @@ const Api = axios.create({
 =======
 >>>>>>> origin/main
 })
+
 
 
 Api.interceptors.request.use((config) => {
@@ -33,3 +36,6 @@ Api.interceptors.response.use(
 )
 
 export default Api
+
+
+
