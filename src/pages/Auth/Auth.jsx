@@ -60,8 +60,14 @@ const Auth = () => {
       return Api.post(endpoint, data);
       
     },
+<<<<<<< HEAD
     onSuccess: (response) => {
       const user = response.data;
+=======
+    onSuccess: (response) => {  
+      const user = response.data;
+      console.log(user);
+>>>>>>> origin/main
       
       if (authMode === 'login') {
         login(user, user.token);
