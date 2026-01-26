@@ -1,0 +1,256 @@
+// ============================================
+// Макет страницы (Header, Nav, Main)
+// ============================================
+
+// Импортируем переменные и миксины
+@import './_variables';
+
+// Header
+header {
+  background: color(white);
+  height: $header-height;
+  @include flex-between;
+  padding: 0 $base-padding;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: color(accent);
+    
+    @include respond-to(md) {
+      font-size: 20px;
+    }
+  }
+}
+
+// Main контент
+main {
+  padding: $base-padding;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: $nav-height + $base-padding * 2;
+  
+  @include respond-to(lg) {
+    padding: $base-padding * 2;
+  }
+}
+
+// Главная страница - без отступов, так как HomeHeader имеет свои отступы
+.home-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: 0;
+  padding-bottom: $nav-height + $base-padding;
+
+  &__content {
+    padding: $base-padding;
+    
+    @include respond-to(lg) {
+      padding: $base-padding * 2;
+    }
+  }
+
+  &__tasks {
+    padding: $base-padding 0;
+    background-color: color(bg);
+    min-height: 400px;
+
+    @include respond-to(sm) {
+      padding: 12px 0;
+    }
+  }
+}
+
+// Страница статистики - без отступов сверху, так как StatsHeader имеет свои отступы
+.stats-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: 0;
+  padding-bottom: $nav-height + $base-padding;
+
+  &__content {
+    padding: $base-padding;
+    
+    @include respond-to(lg) {
+      padding: $base-padding * 2;
+    }
+  }
+}
+
+// Страница календаря - без отступов сверху, так как PageHeader имеет свои отступы
+.calendar-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: 0;
+  padding-bottom: $nav-height + $base-padding;
+
+  &__content {
+    padding: $base-padding;
+    
+    @include respond-to(lg) {
+      padding: $base-padding * 2;
+    }
+  }
+}
+
+// Контейнер для компонентов - обеспечивает выравнивание
+.component-container {
+  margin-bottom: 20px;
+  width: 100%;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
+}
+
+// Секция задач с sticky заголовком
+.tasks-section {
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: color(bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    margin: 0 -20px 0 -20px;
+    padding: 20px;
+    margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+      margin: 0 -16px 0 -16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: color(text);
+      margin: 0 0 16px 0;
+
+      @media (max-width: 768px) {
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .component-container {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Placeholder для задач
+.tasks-placeholder {
+  @include flex-center;
+  padding: 40px 20px;
+  color: color(text-light);
+  font-style: italic;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    padding: 32px 16px;
+    font-size: 14px;
+  }
+}
+
+// Общие стили для остальных страниц с отступами
+.profile-page,
+.settings-page {
+  background-color: color(bg);
+  min-height: calc(100vh - #{$nav-height});
+  padding: $base-padding;
+  padding-bottom: $nav-height + $base-padding * 2;
+}
+
+// Сетка статистики
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $base-padding;
+  
+  @include respond-to(md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include respond-to(lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Нижняя навигация
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: $nav-height;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid color(border);
+  @include flex-between;
+  padding: 0 $base-padding;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  
+  .nav-item {
+    @include flex-center;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    padding: 8px;
+    color: color(text-light);
+    font-size: map-get($font-sizes, small);
+    @include transition();
+    border-radius: $btn-radius;
+    
+    span:first-child {
+      font-size: 24px;
+      line-height: 1;
+    }
+    
+    span:last-child {
+      font-size: map-get($font-sizes, small);
+    }
+    
+    &:hover {
+      background: color(bg);
+      color: color(accent);
+    }
+    
+    &.active {
+      color: color(accent);
+      font-weight: 600;
+    }
+  }
+  
+  // Десктоп версия (опционально - можно сделать сайдбар)
+  @include respond-to(lg) {
+    // Можно оставить как есть или изменить на сайдбар
+  }
+}
+
+// Контейнер для настроек
+.settings-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Список настроек
+.settings-list {
+  background: color(white);
+  border-radius: $card-radius;
+  overflow: hidden;
+  box-shadow: $shadow-md;
+  margin-top: $base-padding;
+}
