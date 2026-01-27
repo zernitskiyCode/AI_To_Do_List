@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getTasks, createTaskInDB, updateTaskInDB, deleteTaskFromDB } from './getTasks';
 
 export const DEFAULT_TASKS = [
   {

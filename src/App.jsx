@@ -14,7 +14,9 @@ import Stats from './pages/Stats/Stats';
 import Calendar from './pages/Calendar/Calendar';
 import './styles/style.scss';
 import Auth from './pages/Auth/Auth';
-import { useAuthStore } from './hooks/useAuthStore';
+import { useAuth } from './hooks/useAuth';
+
+// import Testing from './components/ForTesting/TokenTestComponent'
 
 
 const APP_CONFIG = {
@@ -88,14 +90,19 @@ const MainApp = () => {
 
 
 const AppContent = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       navigate('/auth', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
+
+  // Показываем лоадер пока проверяем авторизацию
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
 
   return isAuthenticated ? <MainApp /> : null;
 };

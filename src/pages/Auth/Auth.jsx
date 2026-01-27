@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import Api from '../../api/Api';
 import './Auth.scss';
-import { useAuthStore } from '../../hooks/useAuthStore';
+import { useAuth } from '../../hooks/useAuth';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, login, register: registerUser } = useAuthStore(); 
+  const { isAuthenticated, login, register: registerUser, loginLoading, registerLoading, loginError, registerError } = useAuth(); 
   
 
   const [authMode, setAuthMode] = useState('login'); // login | register
@@ -54,29 +52,7 @@ const Auth = () => {
     },
   });
 
-  const authMutation = useMutation({
-    mutationFn: (data) => {
-      const endpoint = authMode === 'login' ? '/login' : '/registration';
-      return Api.post(endpoint, data);
-      
-    },
-    onSuccess: (response) => {  
-      const user = response.data;
-      console.log(user);
-      
-      if (authMode === 'login') {
-        login(user, user.token);
-      } else {
-        registerUser(user, user.token);
-      }
-      
-      reset();
-      navigate('/', { replace: true }); 
-    },
-  });
-
   const onSubmit = (data) => {
-
     const formattedData = {
       ...data,
       name: data.name?.trim(),
@@ -85,14 +61,20 @@ const Auth = () => {
       password: data.password.trim(),
     };
 
-    authMutation.mutate(formattedData);
+    if (authMode === 'login') {
+      login(formattedData);
+    } else {
+      registerUser(formattedData);
+    }
   };
 
   const handleToggleMode = () => {
     setAuthMode((prev) => (prev === 'login' ? 'register' : 'login'));
     reset(); 
-    authMutation.reset();
   };
+
+  const isLoading = authMode === 'login' ? loginLoading : registerLoading;
+  const error = authMode === 'login' ? loginError : registerError;
 
   return (
     <div className="auth-container">
@@ -128,14 +110,14 @@ const Auth = () => {
             {errors.password && <div className="error-message">{errors.password.message}</div>}
           </div>
 
-          {authMutation.isError && (
+          {error && (
             <div className="error-message">
-              {authMutation.error.response?.data?.message || 'Ошибка'}
+              {error.response?.data?.message || 'Ошибка'}
             </div>
           )}
 
-          <button type="submit" className="auth-button" disabled={authMutation.isPending}>
-            {authMutation.isPending ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+          <button type="submit" className="auth-button" disabled={isLoading}>
+            {isLoading ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
 

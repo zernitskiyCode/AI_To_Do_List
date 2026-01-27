@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../../hooks/useAuthStore';
+import { useAuth } from '../../hooks/useAuth';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
 const Profile = ({ 
@@ -7,8 +7,8 @@ const Profile = ({
   onRefresh,
   onLogout
 }) => {
-  const { user: authUser } = useAuthStore();
-  const { data: user, isLoading, error, refetch } = useUserProfile(authUser?.user_id);
+  const { user_id, logout } = useAuth();
+  const { data: user, isLoading, error, refetch } = useUserProfile(user_id);
 
 
   //CДелать UI для этого
@@ -54,6 +54,7 @@ const Profile = ({
   };
 
   const handleLogout = () => {
+    logout();
     if (onLogout) {
       onLogout();
     }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8000';
-
+const access_token = null;
 
 
 const Api = axios.create({
@@ -18,6 +18,13 @@ Api.interceptors.request.use((config) => {
   return config;
 });
 
+// Api.interceptors.request.use((config) => {
+//     const access_token = getToken();
+//     if (access_token) {
+//       config.headers.Authorization = `Bearer ${access_token}`;
+//     }
+//     return config;
+//   });
 
 Api.interceptors.response.use(
     (response) =>{
