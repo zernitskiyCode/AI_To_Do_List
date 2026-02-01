@@ -7,15 +7,23 @@ export const useAuth = () => {
   const meQuery = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
-      const response = await Api.get('/me');
-      return response.data;
+      try {
+        const response = await Api.get('/me');
+        return response.data;
+      } catch (error) {
+        // Если ошибка 401, возвращаем null вместо undefined
+        if (error?.response?.status === 401) {
+          return null;
+        }
+        throw error;
+      }
     },
     retry: (failureCount, error) => {
       if (error?.response?.status === 401) return false;
       return failureCount < 2;
     },
     refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, // 5
+    staleTime: 5 * 60 * 1000, // 5 минут
   });
 
   const loginMutation = useMutation({
@@ -55,7 +63,7 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
     
-    // Мmethod
+    // Methods
     login: loginMutation.mutate,
     loginError: loginMutation.error,
     loginLoading: loginMutation.isPending,

@@ -42,4 +42,14 @@ def init_db():
         db.close()
         print(f"Ошибка при инициализации базы данных: {e}")
 
+class User:
+    def __init__(self, id: int, name: str, surname: str, email: str, password: str, created_at: str, is_active: bool):
+        self.id = id
+        self.name = name
+        self.surname = surname
+        self.email = email
+        self.password = password
+        self.created_at = created_at
+        self.is_active = is_active
+
 

@@ -22,7 +22,6 @@ class UserLogin(BaseModel):
 #     tag: str = "General"
     
 class TaskCreate(BaseModel):
-    user_id: int
     title: str
     description: Optional[str] = None
     deadline: Optional[datetime] = None

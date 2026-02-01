@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Response
+from fastapi import FastAPI, Depends, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
@@ -8,15 +8,14 @@ from backend.database.models import init_db
 from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile, update_task
 from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate, TaskUpdate
 # from fastapi import HTTPException
+from backend.auth import config, security
 from backend.dependencies import get_current_user_id
-from backend.auth import config
-from backend.auth import security
-from backend.dependencies import get_user_by_id
+from fastapi.logger import logger
 
 
-app = FastAPI()
 
 app = FastAPI()
+
 
 # security.set_user_model_callback(get_user_by_id)
 
@@ -27,9 +26,22 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Добавляем обработчик для preflight запросов
+@app.options("/{path:path}")
+async def options_handler(request: Request, path: str):
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Credentials": "true",
+        }
+    )
 
 
 # ---------- ROUTES ----------
@@ -42,16 +54,24 @@ def startup_event():
 
 # ---------- АВТОРИЗАЦИЯ ----------
 @app.post("/registration", tags=["Авторизация"], summary="Регистрация пользователя")
-def reg_user(user: UserCreate, response:Response):
-    token = create_user(user)
-    # response.set_cookie(config.JWT_ACCESS_COOKIE_NAME)
-    response.set_cookie(
-        key="my_access_token",  # имя куки
-        value=token,            # сам JWT
-        httponly=True,          # нельзя читать JS
-        max_age=3600*24*7       # срок действия, например 7 дней
-    )
-    return {"msg" : "Пользователь создан", "access_token" : token}
+def reg_user(user: UserCreate, response: Response):
+    try:
+        logger.info("Попытка регистрации пользователя: %s", user.email)
+        token = create_user(user)
+        response.set_cookie(
+            key="my_access_token",  # имя куки
+            value=token,            # сам JWT
+            httponly=True,          # нельзя читать JS
+            max_age=3600*24*7       # срок действия, например 7 дней
+        )
+        logger.info("Пользователь успешно зарегистрирован: %s", user.email)
+        return {"msg": "Пользователь создан", "access_token": token}
+    except HTTPException as e:
+        logger.error("HTTP ошибка при регистрации: %s", e.detail)
+        raise e
+    except Exception as e:
+        logger.error("Неожиданная ошибка при регистрации: %s", str(e))
+        raise HTTPException(status_code=500, detail=f"Ошибка сервера: {str(e)}")
 
 @app.post("/login", tags=["Авторизация"], summary="Авторизация пользователя")
 def login_user(user: UserLogin, response:Response):
@@ -70,21 +90,34 @@ def login_user(user: UserLogin, response:Response):
     return {"msg" : "Пользователь авторизован", "access_token" : token}
 
 @app.get("/userinfo", tags=["Авторизация"], summary="Информация о пользователе")
-def read_user_info(user_id : int = Depends(get_current_user_id)):
-    user_data = get_info(user_id)
-    return user_data
+def read_user_info(user_id: int = Depends(get_current_user_id)):
+    try:
+        logger.info("Получение информации о пользователе с ID: %s", user_id)
+        user_data = get_info(user_id)
+        return user_data
+    except Exception as e:
+        logger.error("Ошибка получения информации о пользователе: %s", e)
+        raise HTTPException(status_code=500, detail="Ошибка получения информации о пользователе")
 
-@app.post("logout", tags=["Авторизация"], summary="Выход")
+@app.post("/logout", tags=["Авторизация"], summary="Выход")
 def log_out(response:Response):
-    response.delete_cookie(config.JWT_ACCESS_COOKIE_NAME)
-    return {"msg" : "Выход выполнен"}
+    try:
+        response.delete_cookie(config.JWT_ACCESS_COOKIE_NAME)
+        return {"msg" : "Выход выполнен"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка при выходе: {e}")
 
-@app.get("/me", tags=["Авторизация"], summary="Проверка авторизации, возвращается id либо 401 - не авторризован")
+@app.get("/me", tags=["Авторизация"], summary="Проверка авторизации, возвращается id либо 401 - не авторизован")
 def me(user_id: int = Depends(get_current_user_id)):
-    if user_id:
-        return user_id
-    else:
-        raise HTTPException(status_code=401, detail="Не авторизован.")
+    try:
+        logger.info("Проверка авторизации для пользователя с ID: %s", user_id)
+        if user_id:
+            return user_id
+        else:
+            raise HTTPException(status_code=401, detail="Не авторизован.")
+    except Exception as e:
+        logger.error("Ошибка при проверке авторизации: %s", e)
+        raise HTTPException(status_code=500, detail=f"Ошибка при проверке авторизации: {e}")
 
 # ---------- ЗАДАЧИ ----------
 @app.post("/createtask", tags=["Задачи"], summary="Создание задания")
@@ -111,15 +144,6 @@ def delete_task(task_id: int):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
-# передаешь id пользователя, получаешь name, surname, email
-@app.get("/getInfoProfile", tags=["Информация"], summary="Получение name, surname, email")
-def getinfouser(user_id : int):
-    try:
-        data = get_info_profile(user_id)[0]
-        print(data)
-        return data
-    except:
-        raise HTTPException(status_code=400, detail="Ошибка при получении информации")
 
 @app.patch("/tasks/{task_id}", tags=["Задачи"], summary="Обновление задачи")
 def edit_task(task_id: int, data: TaskUpdate, user_id : int = Depends(get_current_user_id)):

@@ -58,24 +58,6 @@ def authenticate_user(user: UserLogin):
             else:
                 raise HTTPException(status_code=401, detail="Неверный пароль")
             
-def get_user_by_id(user_id: int):
-    """Берет пользователя из БД по id"""
-    with get_db_connection() as db:
-        with db.cursor() as cursor:
-            cursor.execute(
-                "SELECT id, name, surname, email FROM users WHERE id = %s",
-                (user_id,)
-            )
-            user = cursor.fetchone()
-            if not user:
-                return None
-            return {
-                "id": user[0],
-                "name": user[1],
-                "surname": user[2],
-                "email": user[3]
-            }
-
 # Получение информации о пользователе по id
 def get_info(user_id : int):
     with get_db_connection() as db:
