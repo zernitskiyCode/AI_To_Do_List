@@ -11,17 +11,17 @@ const Api = axios.create({
 })
 
 Api.interceptors.request.use((config) => {
-  console.log('request:', config.url);
+  console.log('request:', config.method?.toUpperCase(), config.url);
   return config;
 });
 
 Api.interceptors.response.use(
     (response) => {
-        console.log('response:', response.status);
+        console.log('response:', response.status, response.config.url);
         return response;
     },
     (error) => {
-        console.error('error:', error.response?.status, error.message);
+        console.error('error:', error.response?.status, error.message, 'URL:', error.config?.url);
         return Promise.reject(error); // Важно! Возвращаем rejected promise
     }
 )

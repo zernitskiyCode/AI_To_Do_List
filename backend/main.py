@@ -67,8 +67,8 @@ def reg_user(user: UserCreate, response: Response):
         logger.info("Пользователь успешно зарегистрирован: %s", user.email)
         return {"msg": "Пользователь создан", "access_token": token}
     except HTTPException as e:
-        logger.error("HTTP ошибка при регистрации: %s", e.detail)
-        raise e
+        logger.error("HTTP ошибка при регистрации: %s - %s", e.status_code, e.detail)
+        raise e  # Пробрасываем HTTPException как есть
     except Exception as e:
         logger.error("Неожиданная ошибка при регистрации: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Ошибка сервера: {str(e)}")

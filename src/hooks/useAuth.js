@@ -11,7 +11,7 @@ export const useAuth = () => {
         const response = await Api.get('/me');
         return response.data;
       } catch (error) {
-        // Если ошибка 401, возвращаем null вместо undefined
+        // Если ошибка 401, возвращаем null (пользователь не авторизован)
         if (error?.response?.status === 401) {
           return null;
         }
@@ -19,24 +19,39 @@ export const useAuth = () => {
       }
     },
     retry: (failureCount, error) => {
+      // Не повторяем запрос при 401 (не авторизован)
       if (error?.response?.status === 401) return false;
       return failureCount < 2;
     },
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // 5 минут
+    // Всегда выполняем запрос при загрузке
+    enabled: true,
   });
 
   const loginMutation = useMutation({
-    mutationFn: (credentials) => Api.post('/login', credentials),
+    mutationFn: async (credentials) => {
+      const response = await Api.post('/login', credentials);
+      return response.data;
+    },
     onSuccess: () => {
-      meQuery.refetch();
+      queryClient.invalidateQueries(['me']);
+    },
+    onError: (error) => {
+      console.error('Login error:', error);
     }
   });
 
   const registerMutation = useMutation({
-    mutationFn: (userData) => Api.post('/registration', userData),
+    mutationFn: async (userData) => {
+      const response = await Api.post('/registration', userData);
+      return response.data;
+    },
     onSuccess: () => {
-      meQuery.refetch();
+      queryClient.invalidateQueries(['me']);
+    },
+    onError: (error) => {
+      console.error('Registration error:', error);
     }
   });
 
@@ -52,7 +67,7 @@ export const useAuth = () => {
     }
   });
 
-  const isAuthenticated = !!meQuery.data && !meQuery.error;
+  const isAuthenticated = meQuery.data !== null && meQuery.data !== undefined;
   const isLoading = meQuery.isLoading;
 
   return {

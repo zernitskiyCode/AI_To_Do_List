@@ -94,6 +94,7 @@ const AppContent = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Перенаправляем на /auth только если точно не авторизованы (не в процессе загрузки)
     if (!isLoading && !isAuthenticated) {
       navigate('/auth', { replace: true });
     }
@@ -101,10 +102,25 @@ const AppContent = () => {
 
   // Показываем лоадер пока проверяем авторизацию
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Проверка авторизации...
+      </div>
+    );
   }
 
-  return isAuthenticated ? <MainApp /> : null;
+  // Если не авторизован, показываем null (перенаправление уже произошло)
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <MainApp />;
 };
 
 
