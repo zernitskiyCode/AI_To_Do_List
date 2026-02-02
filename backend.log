@@ -32,3 +32,10 @@ INFO:     127.0.0.1:44096 - "GET /me HTTP/1.1" 200 OK
 INFO:     127.0.0.1:37558 - "GET /me HTTP/1.1" 200 OK
 ['Mista', 'Rito', 'mitja3379@gmail.com']
 INFO:     127.0.0.1:37558 - "GET /getInfoProfile?user_id=9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47676 - "GET /me HTTP/1.1" 200 OK
+ERROR:fastapi:Ошибка декодирования токена: Signature has expired
+INFO:     127.0.0.1:52606 - "GET /me HTTP/1.1" 401 Unauthorized
+ERROR:fastapi:Ошибка декодирования токена: Signature has expired
+INFO:     127.0.0.1:52606 - "GET /me HTTP/1.1" 401 Unauthorized
+ERROR:fastapi:Ошибка декодирования токена: Signature has expired
+INFO:     127.0.0.1:52786 - "GET /me HTTP/1.1" 401 Unauthorized

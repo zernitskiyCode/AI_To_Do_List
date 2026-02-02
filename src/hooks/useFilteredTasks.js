@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTasks } from './useTasks';
 
 export const useFilteredTasks = (filters = {}) => {
-  const tasks = useTasks(state => state.tasks);
+  const { tasks } = useTasks(); // Теперь получаем tasks из хука
 
   const filteredTasks = useMemo(() => {
     let filtered = [...tasks];
@@ -33,3 +33,4 @@ export const useFilteredTasks = (filters = {}) => {
 
   return filteredTasks;
 };
+

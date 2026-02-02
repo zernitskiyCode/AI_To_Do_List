@@ -28,7 +28,7 @@ const formReducer = (state, action) => {
 const AddTaskForm = ({ onClose }) => {
  
   const [formState, dispatch] = useReducer(formReducer, initialState);
-  const addTask = useTasks(state => state.addTask);
+  const { createTask } = useTasks(); // Получаем createTask из нового хука
   
 
 //Validating
@@ -95,7 +95,7 @@ const validateTaskName = (name) => {
       tags: []
     };
 
-    addTask(taskData);
+    createTask(taskData); // Используем createTask вместо addTask
     
     dispatch({ type: 'RESET_FORM' });
     

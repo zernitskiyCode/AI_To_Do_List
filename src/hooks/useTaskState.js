@@ -2,7 +2,7 @@ import { useTasks } from './useTasks';
 
 // Хук только для получения статистики задач
 export const useTaskState = () => {
-  const tasks = useTasks(state => state.tasks);
+  const { tasks } = useTasks(); // Получаем tasks из нового хука
   
   const getTasksStats = () => {
     const total = tasks.length;

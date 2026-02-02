@@ -6,7 +6,7 @@ import TaskFilters from '../../components/TaskFilters/TaskFilters';
 import AddTaskButton from '../../components/AddTaskButton/AddTaskButton';
 import TaskList from '../../components/TaskList/TaskList';
 import AddTaskModal from '../../components/Modal/AddTaskModal';
-import { useTasks } from '../../hooks/useTasks';
+import { useTasks, useTaskFilters } from '../../hooks/useTasks';
 import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { useModal } from '../../hooks/useModal';
 
@@ -20,17 +20,20 @@ const Home = ({
   onRecordClick,
   onSearch 
 }) => {
-  const [selectedPriority, setSelectedPriority] = useState('all');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
+  // Используем useTaskFilters вместо useState
+  const {
+    searchQuery,
+    selectedCategory,
+    selectedPriority,
+    setSearchQuery,
+    setCategory,
+    setPriority
+  } = useTaskFilters();
 
   const { isActive: isModalActive, toggle: toggleModal } = useModal();
 
-  // const addTask = useTasks(state => state.addTask);
-  const updateTask = useTasks(state => state.updateTask);
-  const deleteTask = useTasks(state => state.deleteTask);
-  const toggleComplete = useTasks(state => state.toggleComplete);
+  // Получаем данные и методы из useTasks
+  const { tasks, isLoading, error, updateTask, deleteTask, toggleComplete } = useTasks();
   
   const filteredTasks = useFilteredTasks({
     priority: selectedPriority,
@@ -38,14 +41,12 @@ const Home = ({
     search: searchQuery
   });
 
-
-
   const handlePriorityChange = (priority) => {
-    setSelectedPriority(priority);
+    setPriority(priority);
   };
 
   const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
+    setCategory(category);
   };
 
   const handleSearch = (query) => {
@@ -53,21 +54,61 @@ const Home = ({
     onSearch?.(query); 
   };
 
-
   const handleAddTask = () => {
     toggleModal();
   };
 
-
-
   const handleToggleComplete = (taskId) => {
-    toggleComplete(taskId);
+    toggleComplete({ taskId });
   };
 
   const handleDeleteTask = (taskId) => {
     if (!confirm('Вы уверены, что хотите удалить эту задачу?')) return;
-    deleteTask(taskId);
+    deleteTask({ taskId });
   };
+
+  // Обработка состояний загрузки и ошибок
+  if (isLoading) {
+    return (
+      <div className="home-page">
+        <PageHeader 
+          title="AI Задачи"
+          icon="⚡"
+          variant="default"
+          showDate={true}
+          showNotifications={true}
+          notificationCount={notificationCount}
+          onNotificationClick={onNotificationClick}
+        />
+        <div className="home-page__content">
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            Загрузка задач...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="home-page">
+        <PageHeader 
+          title="AI Задачи"
+          icon="⚡"
+          variant="default"
+          showDate={true}
+          showNotifications={true}
+          notificationCount={notificationCount}
+          onNotificationClick={onNotificationClick}
+        />
+        <div className="home-page__content">
+          <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
+            Ошибка загрузки задач: {error.message}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
