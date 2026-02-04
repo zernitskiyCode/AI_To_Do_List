@@ -25,16 +25,12 @@ class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = None
     deadline: Optional[datetime] = None
-    priority: Optional[int] = 1
-    tag: Optional[str] = "General"
-# Ебанное говно не работает
+    priority: Optional[str] = "medium"  # 'low', 'medium', 'high'
+    tag: Optional[str] = "personal"
 class TaskUpdate(BaseModel):
-    user_id: int           
-    task_id : int
     title: Optional[str] = None 
     description: Optional[str] = None
     deadline: Optional[datetime] = None 
-    priority: Optional[str] = None  
-    created_at: Optional[datetime] = None           
+    priority: Optional[str] = None  # 'low', 'medium', 'high'
     completed: Optional[bool] = None        
-    tags: Optional[str] = None  
+    tag: Optional[str] = None  # category (в БД называется tag)  

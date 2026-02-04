@@ -122,20 +122,19 @@ def me(user_id: int = Depends(get_current_user_id)):
 # ---------- ЗАДАЧИ ----------
 @app.post("/createtask", tags=["Задачи"], summary="Создание задания")
 def create_task_for_user(task: TaskCreate, user_id : int = Depends(get_current_user_id)):
-    task_id = create_task(task, user_id)
-    if not task_id:
+    new_task = create_task(task, user_id)
+    if not new_task:
         raise HTTPException(status_code=400, detail="Task creation failed")
-    return {"message": "Task created successfully", "task_id": task_id}
+    return new_task
 
 # Получение задач get_user_tasks
 @app.get("/gettask", tags=["Задачи"], summary="Получение заданий")
 def get_tasks(user_id : int = Depends(get_current_user_id)):
     tasks = get_user_tasks(user_id)  # Получить задачи пользователя из базы
-    if not tasks:
-        raise HTTPException(status_code=404, detail="Tasks not found")
-    return tasks
+    # Возвращаем пустой список вместо ошибки, если задач нет
+    return tasks if tasks else []
 # Удаление задачи по id
-@app.delete("/tasks/{task_id}", tags=["Задачи"], summary="Удаление задачи")
+@app.delete("/deletetask/{task_id}", tags=["Задачи"], summary="Удаление задачи")
 def delete_task(task_id: int):
     try:
         delete_task_id(task_id)
@@ -145,7 +144,7 @@ def delete_task(task_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка при удалении задачи: {e}")
 
-@app.patch("/tasks/{task_id}", tags=["Задачи"], summary="Обновление задачи")
+@app.put("/updatetask/{task_id}", tags=["Задачи"], summary="Обновление задачи")
 def edit_task(task_id: int, data: TaskUpdate, user_id : int = Depends(get_current_user_id)):
     return update_task(task_id, data, user_id)
 # передаешь id пользователя, получаешь name, surname, email
@@ -157,6 +156,8 @@ def getinfouser(user_id : int = Depends(get_current_user_id)):
         return data
     except:
         raise HTTPException(status_code=400, detail="Ошибка при получении информации")
+
+
 
 
 

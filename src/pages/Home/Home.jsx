@@ -20,7 +20,6 @@ const Home = ({
   onRecordClick,
   onSearch 
 }) => {
-  // Используем useTaskFilters вместо useState
   const {
     searchQuery,
     selectedCategory,
@@ -129,7 +128,7 @@ const Home = ({
         </div>
         
         <div className="component-container">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} value={searchQuery} />
         </div>
         
         <div className="tasks-section">

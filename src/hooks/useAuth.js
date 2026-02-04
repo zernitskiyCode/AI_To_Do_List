@@ -11,7 +11,6 @@ export const useAuth = () => {
         const response = await Api.get('/me');
         return response.data;
       } catch (error) {
-        // Если ошибка 401, возвращаем null (пользователь не авторизован)
         if (error?.response?.status === 401) {
           return null;
         }
@@ -19,13 +18,11 @@ export const useAuth = () => {
       }
     },
     retry: (failureCount, error) => {
-      // Не повторяем запрос при 401 (не авторизован)
       if (error?.response?.status === 401) return false;
       return failureCount < 2;
     },
     refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, // 5 минут
-    // Всегда выполняем запрос при загрузке
+    staleTime: 5 * 60 * 1000, // 5 
     enabled: true,
   });
 

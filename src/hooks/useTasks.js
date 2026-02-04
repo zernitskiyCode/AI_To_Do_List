@@ -128,21 +128,18 @@ import { getTasks, createTaskInDB, updateTaskInDB, deleteTaskFromDB } from './ge
 export const useTasks = () => {
   const queryClient = useQueryClient();
 
-  // Получение задач
   const { data: tasks = [], isLoading, error } = useQuery({
     queryKey: ['tasks'],
     queryFn: getTasks,
-    staleTime: 1000 * 60 * 5, // 5 минут
+    staleTime: 1000 * 60 * 5, // 5 
     retry: 2,
   });
 
-  // Создание задачи
   const createTask = useMutation({
     mutationFn: createTaskInDB,
     onSuccess: () => {
       queryClient.invalidateQueries(['tasks']);
     },
-    // Оптимистичное обновление
     onMutate: async (newTask) => {
       await queryClient.cancelQueries(['tasks']);
       const previousTasks = queryClient.getQueryData(['tasks']);
@@ -154,12 +151,13 @@ export const useTasks = () => {
       
       return { previousTasks };
     },
-    onError: (err, newTask, context) => {
-      queryClient.setQueryData(['tasks'], context.previousTasks);
+    onError: (context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
     },
   });
 
-  // Обновление задачи
   const updateTask = useMutation({
     mutationFn: ({ taskId, updates }) => updateTaskInDB(taskId, updates),
     onSuccess: () => {
@@ -167,7 +165,6 @@ export const useTasks = () => {
     },
   });
 
-  // Удаление задачи
   const deleteTask = useMutation({
     mutationFn:({taskId}) => deleteTaskFromDB(taskId),
     onSuccess: () => {
@@ -175,9 +172,14 @@ export const useTasks = () => {
     },
   });
 
-  // Toggle complete с оптимистичным обновлением
   const toggleComplete = useMutation({
-    mutationFn: ({ taskId, completed }) => updateTaskInDB(taskId, { completed }),
+    mutationFn: ({ taskId }) => {
+      const currentTasks = queryClient.getQueryData(['tasks']) || [];
+      const currentTask = currentTasks.find(task => task.id === taskId);
+      const newCompleted = !currentTask?.completed;
+      
+      return updateTaskInDB(taskId, { completed: newCompleted });
+    },
     onMutate: async ({ taskId }) => {
       await queryClient.cancelQueries(['tasks']);
       const previousTasks = queryClient.getQueryData(['tasks']);
@@ -191,7 +193,9 @@ export const useTasks = () => {
       return { previousTasks };
     },
     onError: (context) => {
-      queryClient.setQueryData(['tasks'], context.previousTasks);
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['tasks'], context.previousTasks);
+      }
     },
   });
 
@@ -206,7 +210,7 @@ export const useTasks = () => {
   };
 };
 
-// src/hooks/useTaskFilters.js - Zustand для UI состояния
+// for UI(need go to along hook)
 import { create } from 'zustand';
 
 export const useTaskFilters = create((set) => ({

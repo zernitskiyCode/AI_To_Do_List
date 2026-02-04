@@ -4,6 +4,9 @@ from fastapi import HTTPException
 import bcrypt
 from backend.auth import security
 from authx import AuthX, AuthXConfig
+from psycopg2.extras import RealDictCursor
+from datetime import datetime
+
 
 # Добавление пользователя
 def create_user(user: UserCreate):
@@ -82,26 +85,46 @@ def get_info_profile(user_id : int):
             # создание задачи
 def create_task(task: TaskCreate, user_id: int):
     with get_db_connection() as db:
-        with db.cursor() as cursor:
+        with db.cursor(cursor_factory=RealDictCursor) as cursor:
             # 1. Проверяем существует ли такой пользователь
             cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
             if not cursor.fetchone():   
                 raise HTTPException(status_code=400, detail="Пользователь не найден")
             try:
+                # Преобразуем priority из строки в число
+                priority_map = {'low': 1, 'medium': 2, 'high': 3}
+                priority_num = priority_map.get(task.priority, 2)
+                
                 # 2. Вставляем задачу
                 cursor.execute(
                     "INSERT INTO task(title, description, deadline, priority, tag) "
-                    "VALUES (%s, %s, %s, %s, %s) RETURNING id",
-                    (task.title, task.description, task.deadline, task.priority, task.tag)
+                    "VALUES (%s, %s, %s, %s, %s) RETURNING id, title, description, deadline, priority, created_at, completed, tag",
+                    (task.title, task.description, task.deadline, priority_num, task.tag or 'personal')
                 )
-                task_id = cursor.fetchone()[0]
+                new_task = cursor.fetchone()
+                task_id = new_task['id']
+                
                 # 3. Связываем задачу с пользователем
                 cursor.execute(
                     "INSERT INTO task_users(task_id, user_id) VALUES (%s, %s)",
                     (task_id, user_id)
                 )
                 db.commit()
-                return task_id
+                
+                # 4. Возвращаем задачу в правильном формате
+                priority_str = {1: 'low', 2: 'medium', 3: 'high'}.get(new_task['priority'], 'medium')
+                
+                return {
+                    'id': str(new_task['id']),
+                    'title': new_task['title'] or '',
+                    'description': new_task['description'] or '',
+                    'priority': priority_str,
+                    'category': new_task['tag'] or 'personal',
+                    'completed': new_task['completed'] or False,
+                    'createdAt': new_task['created_at'].isoformat() if new_task['created_at'] else datetime.now().isoformat(),
+                    'dueDate': new_task['deadline'].isoformat() if new_task['deadline'] else None,
+                    'tags': [new_task['tag']] if new_task['tag'] else []
+                }
 
             except Exception as e:
                 db.rollback()
@@ -109,22 +132,66 @@ def create_task(task: TaskCreate, user_id: int):
 
 
 # Получение задачи
+# def get_user_tasks(user_id: int):
+#     with get_db_connection() as db:
+#         with db.cursor() as cursor:
+#             # id, title, description, deadline, priority, created_at, completed, tag
+#             cursor.execute("SELECT task_id FROM task_users WHERE user_id = %s", (user_id,))
+#             task_ids = cursor.fetchall()
+
+#             cursor.execute("""
+#                 SELECT t.id, t.title, t.description, t.deadline, t.priority, t.created_at, t.completed, t.tag
+#                 FROM task AS t
+#                 JOIN task_users AS tu ON t.id = tu.task_id
+#                 WHERE tu.user_id = %s
+#             """, (user_id,))
+
+#             tasks = cursor.fetchall()
+#             return tasks
 def get_user_tasks(user_id: int):
     with get_db_connection() as db:
-        with db.cursor() as cursor:
-            # id, title, description, deadline, priority, created_at, completed, tag
-            cursor.execute("SELECT task_id FROM task_users WHERE user_id = %s", (user_id,))
-            task_ids = cursor.fetchall()
-
+        with db.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("""
-                SELECT t.id, t.title, t.description, t.deadline, t.priority, t.created_at, t.completed, t.tag
+                SELECT 
+                    t.id,
+                    t.title,
+                    t.description,
+                    t.deadline as dueDate,
+                    CASE 
+                        WHEN t.priority = 1 THEN 'low'
+                        WHEN t.priority = 2 THEN 'medium'
+                        WHEN t.priority = 3 THEN 'high'
+                        ELSE 'medium'
+                    END as priority,
+                    t.created_at as createdAt,
+                    t.completed,
+                    t.tag as category,
+                    ARRAY[t.tag] as tags
                 FROM task AS t
                 JOIN task_users AS tu ON t.id = tu.task_id
                 WHERE tu.user_id = %s
+                ORDER BY t.created_at DESC
             """, (user_id,))
 
             tasks = cursor.fetchall()
-            return tasks
+            
+            # Преобразуем в нужный формат
+            formatted_tasks = []
+            for task in tasks:
+                formatted_task = {
+                    'id': str(task['id']),
+                    'title': task['title'] or '',
+                    'description': task['description'] or '',
+                    'priority': task['priority'],
+                    'category': task['category'] or 'personal',
+                    'completed': task['completed'] or False,
+                    'createdAt': task['createdat'].isoformat() if task['createdat'] else datetime.now().isoformat(),
+                    'dueDate': task['duedate'].isoformat() if task['duedate'] else None,
+                    'tags': [task['category']] if task['category'] else []
+                }
+                formatted_tasks.append(formatted_task)
+            
+            return formatted_tasks
 
 
 # Удаление задачи по id
@@ -162,11 +229,16 @@ def update_task(task_id: int, data: TaskUpdate, user_id: int):
             
             # Берём только переданные поля
             update_data = data.model_dump(exclude_unset=True)
+            
             if not update_data:
                 raise HTTPException(status_code=400, detail="Нет данных для обновления")
 
-            #  Формируем SET часть SQL
-            # Хуйня ебучая разобраться и переписать
+            # Преобразуем priority если нужно
+            if 'priority' in update_data and isinstance(update_data['priority'], str):
+                priority_map = {'low': 1, 'medium': 2, 'high': 3}
+                update_data['priority'] = priority_map.get(update_data['priority'], 2)
+
+            # Формируем SET часть SQL
             fields = [f"{key} = %s" for key in update_data.keys()]
             values = list(update_data.values())
             values.append(task_id)  # id для WHERE
@@ -174,6 +246,5 @@ def update_task(task_id: int, data: TaskUpdate, user_id: int):
             query = f"UPDATE task SET {', '.join(fields)} WHERE id = %s"
             cursor.execute(query, values)
             db.commit()
-            # Хуйня ебучая разобраться и переписать
 
             return {"message": "Задача успешно обновлена"}

@@ -7,7 +7,7 @@ const Api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    withCredentials: true, // Важно! Для отправки cookies
+    withCredentials: true, 
 })
 
 Api.interceptors.request.use((config) => {
@@ -22,7 +22,7 @@ Api.interceptors.response.use(
     },
     (error) => {
         console.error('error:', error.response?.status, error.message, 'URL:', error.config?.url);
-        return Promise.reject(error); // Важно! Возвращаем rejected promise
+        return Promise.reject(error); 
     }
 )
 
