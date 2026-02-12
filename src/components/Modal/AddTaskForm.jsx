@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useReducer } from 'react';
 import './AddTaskForm.scss';
 import { useTasks } from '../../hooks/useTasks';
-import { useReducer } from 'react';
 
 
 
 const initialState = {
   taskName: '',
+  description: '',
   selectedPriority: 'medium',
   selectedCategory: 'personal',
   error: ''
@@ -81,6 +81,10 @@ const validateTaskName = (name) => {
     if (formState.error) dispatch({ type: 'SET_ERROR', value: '' });
   };
 
+  const handleDescriptionChange = (e) => {
+    dispatch({ type: 'UPDATE_FIELD', field: 'description', value: e.target.value });
+  };
+
   //create task
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -89,6 +93,7 @@ const validateTaskName = (name) => {
 
      const taskData = {
       title: formState.taskName.trim(),
+      description: formState.description.trim() || null,
       priority: formState.selectedPriority !== 'all' ? formState.selectedPriority : 'medium',
       category: formState.selectedCategory !== 'all' ? formState.selectedCategory : 'personal',
       dueDate: null,
@@ -123,6 +128,18 @@ const validateTaskName = (name) => {
             required
           />
           {formState.error && <div className="add-task-form__error">{formState.error}</div>}
+        </div>
+
+        {/* Description field */}
+        <div className="add-task-form__field">
+          <label className="add-task-form__label">Описание</label>
+          <textarea
+            className="add-task-form__input add-task-form__textarea"
+            value={formState.description}
+            onChange={handleDescriptionChange}
+            placeholder="Добавьте описание задачи..."
+            rows="3"
+          />
         </div>
 
         {/* priority */}

@@ -74,6 +74,13 @@
     }
   }
 
+  &__textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+
   &__priority {
     display: flex;
     gap: 8px;

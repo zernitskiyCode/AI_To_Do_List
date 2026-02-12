@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import './TaskList.scss';
+import { useTasks } from '../../hooks/useTasks';
+import EmptyState from './EmptyState';
 
 const TaskList = ({ 
   tasks = [], 
@@ -7,6 +9,7 @@ const TaskList = ({
   onDeleteTask, 
 }) => {
   const [expandedTask, setExpandedTask] = useState(null);
+  const { tasks: allTasks } = useTasks(); // Получаем все задачи для проверки
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -57,11 +60,7 @@ const TaskList = ({
   if (tasks.length === 0) {
     return (
       <div className="task-list">
-        <div className="task-list__empty">
-          <span className="task-list__empty-icon">📝</span>
-          <h3>Задач пока нет</h3>
-          <p>Добавьте первую задачу, чтобы начать планирование</p>
-        </div>
+        <EmptyState hasAnyTasks={allTasks.length > 0} />
       </div>
     );
   }
