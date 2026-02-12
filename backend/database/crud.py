@@ -248,3 +248,96 @@ def update_task(task_id: int, data: TaskUpdate, user_id: int):
             db.commit()
 
             return {"message": "Задача успешно обновлена"}
+
+
+# Получение всех категорий пользователя (для формы создания задачи)
+def get_all_user_categories(user_id: int):
+    """
+    Возвращает ВСЕ категории пользователя (без ограничений):
+    - Дефолтные категории (work, personal, health, study)
+    - Все уникальные категории из задач пользователя
+    """
+    # Дефолтные категории
+    default_categories = [
+        {'id': 'work', 'label': 'Работа', 'isDefault': True, 'count': 0},
+        {'id': 'personal', 'label': 'Личное', 'isDefault': True, 'count': 0},
+        {'id': 'health', 'label': 'Здоровье', 'isDefault': True, 'count': 0},
+        {'id': 'study', 'label': 'Учеба', 'isDefault': True, 'count': 0},
+    ]
+    
+    with get_db_connection() as db:
+        with db.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Получаем уникальные категории из задач пользователя
+            cursor.execute("""
+                SELECT DISTINCT t.tag
+                FROM task AS t
+                JOIN task_users AS tu ON t.id = tu.task_id
+                WHERE tu.user_id = %s AND t.tag IS NOT NULL
+                ORDER BY t.tag
+            """, (user_id,))
+            
+            user_categories = cursor.fetchall()
+            
+            # Собираем все категории
+            all_categories = default_categories.copy()
+            default_ids = {cat['id'] for cat in default_categories}
+            
+            # Добавляем пользовательские категории (если они не дефолтные)
+            for cat in user_categories:
+                tag = cat['tag']
+                if tag and tag not in default_ids:
+                    all_categories.append({
+                        'id': tag,
+                        'label': tag.capitalize(),
+                        'isDefault': False,
+                        'count': 0
+                    })
+            
+            return all_categories
+
+# Получение топ-6 самых используемых категорий (для фильтров)
+def get_user_categories(user_id: int):
+    """
+    Возвращает топ-6 самых используемых категорий для фильтров:
+    - Дефолтные категории (work, personal, health, study) - всегда показываем
+    - Топ-6 самых используемых пользовательских категорий (по количеству задач)
+    """
+    # Дефолтные категории
+    default_categories = [
+        {'id': 'work', 'label': 'Работа', 'isDefault': True, 'count': 0},
+        {'id': 'personal', 'label': 'Личное', 'isDefault': True, 'count': 0},
+        {'id': 'health', 'label': 'Здоровье', 'isDefault': True, 'count': 0},
+        {'id': 'study', 'label': 'Учеба', 'isDefault': True, 'count': 0},
+    ]
+    
+    with get_db_connection() as db:
+        with db.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Получаем топ-6 самых используемых пользовательских категорий
+            cursor.execute("""
+                SELECT t.tag, COUNT(*) as count
+                FROM task AS t
+                JOIN task_users AS tu ON t.id = tu.task_id
+                WHERE tu.user_id = %s AND t.tag IS NOT NULL
+                GROUP BY t.tag
+                ORDER BY count DESC
+                LIMIT 6
+            """, (user_id,))
+            
+            user_categories = cursor.fetchall()
+            
+            # Собираем категории
+            all_categories = default_categories.copy()
+            default_ids = {cat['id'] for cat in default_categories}
+            
+            # Добавляем топ-6 пользовательских категорий (если они не дефолтные)
+            for cat in user_categories:
+                tag = cat['tag']
+                if tag and tag not in default_ids:
+                    all_categories.append({
+                        'id': tag,
+                        'label': tag.capitalize(),
+                        'isDefault': False,
+                        'count': cat['count']
+                    })
+            
+            return all_categories

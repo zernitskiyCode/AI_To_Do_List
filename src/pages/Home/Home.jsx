@@ -62,8 +62,7 @@ const Home = ({
   };
 
   const handleDeleteTask = (taskId) => {
-    if (!confirm('Вы уверены, что хотите удалить эту задачу?')) return;
-    deleteTask({ taskId });
+      deleteTask({ taskId });
   };
 
   // Обработка состояний загрузки и ошибок

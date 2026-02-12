@@ -119,3 +119,21 @@
     box-shadow: $shadow-md;
   }
 }
+
+
+.task-filters {
+  &__loading {
+    padding: 10px 16px;
+    text-align: center;
+    color: color(text-muted);
+    font-size: 14px;
+    background: color(white);
+    border-radius: 20px;
+    box-shadow: $shadow-sm;
+
+    @media (max-width: 768px) {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+  }
+}

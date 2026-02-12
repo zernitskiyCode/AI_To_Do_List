@@ -9,7 +9,7 @@ const TaskList = ({
   onDeleteTask, 
 }) => {
   const [expandedTask, setExpandedTask] = useState(null);
-  const { tasks: allTasks } = useTasks(); // Получаем все задачи для проверки
+  const { tasks: allTasks } = useTasks();
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -42,13 +42,15 @@ const TaskList = ({
   };
 
   const getCategoryText = (category) => {
-    switch (category) {
-      case 'work': return 'Работа';
-      case 'personal': return 'Личное';
-      case 'health': return 'Здоровье';
-      case 'study': return 'Учеба';
-      default: return 'Другое';
-    }
+    const categoryMap = {
+      'work': 'Работа',
+      'personal': 'Личное',
+      'health': 'Здоровье',
+      'study': 'Учеба',
+    };
+    
+    
+    return categoryMap[category] || (category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Другое');
   };
 
   const handleToggleExpand = (taskId) => {

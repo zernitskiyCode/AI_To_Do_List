@@ -1,4 +1,5 @@
 import './TaskFilters.scss';
+import { useCategories } from '../../hooks/useCategories';
 
 const TaskFilters = ({ 
   selectedPriority = 'all',
@@ -6,6 +7,7 @@ const TaskFilters = ({
   onPriorityChange,
   onCategoryChange 
 }) => {
+  const { categories, isLoading } = useCategories();
   const priorities = [
     { id: 'all', label: 'Все', color: '#8B5CF6' },
     { id: 'high', label: 'Важные', color: '#EF4444' },
@@ -13,12 +15,10 @@ const TaskFilters = ({
     { id: 'low', label: 'Низкие', color: '#3B82F6' },
   ];
 
-  const categories = [
-    { id: 'all', label: 'Все' },
-    { id: 'work', label: 'Работа' },
-    { id: 'personal', label: 'Личное' },
-    { id: 'health', label: 'Здоровье' },
-    { id: 'study', label: 'Учеба' },
+  // Добавляем "Все" к категориям
+  const allCategories = [
+    { id: 'all', label: 'Все', isDefault: true },
+    ...categories
   ];
 
   const handlePriorityClick = (priorityId) => {
@@ -58,15 +58,19 @@ const TaskFilters = ({
 
       <div className="task-filters__section">
         <div className="task-filters__categories">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              className={`category-filter ${selectedCategory === category.id ? 'category-filter--active' : ''}`}
-              onClick={() => handleCategoryClick(category.id)}
-            >
-              {category.label}
-            </button>
-          ))}
+          {isLoading ? (
+            <div className="task-filters__loading">Загрузка...</div>
+          ) : (
+            allCategories.map((category) => (
+              <button
+                key={category.id}
+                className={`category-filter ${selectedCategory === category.id ? 'category-filter--active' : ''}`}
+                onClick={() => handleCategoryClick(category.id)}
+              >
+                {category.label}
+              </button>
+            ))
+          )}
         </div>
       </div>
     </div>

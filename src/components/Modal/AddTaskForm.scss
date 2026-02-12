@@ -226,3 +226,36 @@
     box-shadow: $shadow-md;
   }
 }
+
+
+.add-task-form {
+  &__custom-toggle {
+    padding: 8px 12px;
+    background: transparent;
+    color: color(accent);
+    border: 1px dashed color(accent);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    @include transition();
+    margin-top: 8px;
+
+    @media (max-width: 768px) {
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+
+    &:hover {
+      background: rgba(color(accent), 0.1);
+      border-style: solid;
+    }
+  }
+
+  &__loading {
+    padding: 10px;
+    text-align: center;
+    color: color(text-muted);
+    font-size: 14px;
+  }
+}

@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from backend.database.models import init_db
 # from backend.database.models import test
-from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile, update_task
+from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile, update_task, get_user_categories, get_all_user_categories
 from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate, TaskUpdate
 # from fastapi import HTTPException
 from backend.auth import config, security
@@ -156,6 +156,36 @@ def getinfouser(user_id : int = Depends(get_current_user_id)):
         return data
     except:
         raise HTTPException(status_code=400, detail="Ошибка при получении информации")
+
+# Получение категорий пользователя (для фильтров - топ-6)
+@app.get("/categories", tags=["Категории"], summary="Получение топ-6 самых используемых категорий для фильтров")
+def get_categories(user_id: int = Depends(get_current_user_id)):
+    """
+    Возвращает топ-6 самых используемых категорий для фильтров:
+    - Дефолтные категории (work, personal, health, study)
+    - Топ-6 самых используемых пользовательских категорий
+    """
+    try:
+        categories = get_user_categories(user_id)
+        return categories
+    except Exception as e:
+        logger.error("Ошибка при получении категорий: %s", e)
+        raise HTTPException(status_code=500, detail=f"Ошибка при получении категорий: {e}")
+
+# Получение всех категорий пользователя (для формы создания задачи)
+@app.get("/categories/all", tags=["Категории"], summary="Получение всех категорий пользователя")
+def get_all_categories(user_id: int = Depends(get_current_user_id)):
+    """
+    Возвращает ВСЕ категории пользователя (без ограничений):
+    - Дефолтные категории (work, personal, health, study)
+    - Все уникальные категории из задач пользователя
+    """
+    try:
+        categories = get_all_user_categories(user_id)
+        return categories
+    except Exception as e:
+        logger.error("Ошибка при получении всех категорий: %s", e)
+        raise HTTPException(status_code=500, detail=f"Ошибка при получении всех категорий: {e}")
 
 
 

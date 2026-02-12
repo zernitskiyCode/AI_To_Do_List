@@ -19,3 +19,14 @@ export const deleteTaskFromDB = async (taskId) => {
   const response = await Api.delete(`/deletetask/${taskId}`);
   return response.data;
 };
+
+
+export const getCategories = async () => {
+  const response = await Api.get('/categories');
+  return response.data;
+};
+
+export const getAllCategories = async () => {
+  const response = await Api.get('/categories/all');
+  return response.data;
+};
