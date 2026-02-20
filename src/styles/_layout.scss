@@ -185,6 +185,28 @@ main {
   @include respond-to(lg) {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  // Вариант для 3 карточек
+  &--three {
+    @include respond-to(md) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+// Skeleton для графика
+.weekly-chart-skeleton {
+  background: white;
+  border-radius: $card-radius;
+  padding: $base-padding * 1.5;
+  box-shadow: $shadow-md;
+  margin-top: $base-padding;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: color(text-light);
+  font-size: 16px;
 }
 
 // Нижняя навигация

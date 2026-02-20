@@ -1,59 +1,58 @@
 import StatCard from '../../components/StatCard/StatCard';
 import PageHeader from '../../components/PageHeader/PageHeader';
+import WeeklyProgressChart from '../../components/WeeklyProgressChart/WeeklyProgressChart';
 import { useTaskState } from '../../hooks/useTaskState';
+import { useWeeklyStats, useStreak } from '../../hooks/useWeeklyStats';
 import { useMemo } from 'react';
 
-
-
-
-const Stats = ({ stats = {} }) => {
-
-
-  const { getTasksStats } = useTaskState()
- 
+/**
+ * Страница статистики
+ * Показывает:
+ * - 3 карточки: процент выполнения, задач готово, дней подряд
+ * - График недели: столбчатая диаграмма за последние 7 дней
+ */
+const Stats = () => {
+  // Получаем статистику задач (процент выполнения, количество)
+  const { getTasksStats } = useTaskState();
   const TaskStats = useMemo(() => getTasksStats(), [getTasksStats]);
-  const daysInRow = 1;//позже кастомный хук и запрос на бд или локальное хранение
+  
+  // Получаем данные для графика недели (mock или API)
+  const { weeklyStats, isLoading: weeklyLoading } = useWeeklyStats();
+  
+  // Получаем стрик (дни подряд) (mock или API)
+  const { streak, isLoading: streakLoading } = useStreak();
 
-
+  // Только 3 карточки (убрали "Всего задач")
   const statCards = [ 
     { 
-      label: 'Задачи', 
-      value: TaskStats.total, 
-      type: 'total',
-      subtitle: 'Всего задач'
-    },
-    { 
-      label: 'Процент выполненых', 
       value: TaskStats.completionRate > 0 ? `${TaskStats.completionRate}%` : '0%',  
       type: 'completed',
       subtitle: 'Выполнено'
     },
     { 
-      label: 'Выполнено', 
       value: TaskStats.completed, 
       type: 'ready',
       subtitle: 'Задач готово'
     },
     { 
-      label: 'Дней подряд', 
-      value: daysInRow > 0 ? `${daysInRow}` : '0', 
+      value: streak > 0 ? `${streak}` : '0', 
       type: 'streak',
-      subtitle: 'Дней активности'
+      subtitle: 'Дней подряд'
     },
   ];
-  
 
   return (
     <div className="stats-page">
       <PageHeader 
-        icon = "📊"
+        icon="📊"
         title="Статистика"
         subtitle="Ваша продуктивность"
         variant="stats"
-    ></PageHeader>
+      />
       
       <div className="stats-page__content">
-        <div className="stats-grid">
+        {/* Верхние 3 карточки */}
+        <div className="stats-grid stats-grid--three">
           {statCards.map((card, index) => (
             <StatCard 
               key={index} 
@@ -63,6 +62,18 @@ const Stats = ({ stats = {} }) => {
             />
           ))}
         </div>
+
+        {/* График недели (показываем только после загрузки) */}
+        {!weeklyLoading && weeklyStats.length > 0 && (
+          <WeeklyProgressChart data={weeklyStats} />
+        )}
+        
+        {/* Заглушка при загрузке */}
+        {weeklyLoading && (
+          <div className="weekly-chart-skeleton">
+            Загрузка графика...
+          </div>
+        )}
       </div>
     </div>
   );
