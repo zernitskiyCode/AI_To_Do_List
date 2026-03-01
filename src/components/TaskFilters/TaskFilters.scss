@@ -26,6 +26,15 @@
       gap: 6px;
       margin-bottom: 12px;
     }
+
+    // Последовательное появление фильтров приоритета
+    .priority-filter {
+      @for $i from 1 through 10 {
+        &:nth-child(#{$i}) {
+          @include animate-slide-down(#{$i * 0.05}s);
+        }
+      }
+    }
   }
 
   &__categories {
@@ -35,6 +44,15 @@
 
     @media (max-width: 768px) {
       gap: 6px;
+    }
+
+    // Последовательное появление категорий
+    .category-filter {
+      @for $i from 1 through 15 {
+        &:nth-child(#{$i}) {
+          @include animate-slide-down(#{0.3 + $i * 0.05}s);
+        }
+      }
     }
   }
 }
@@ -50,7 +68,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  @include transition();
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: $shadow-sm;
 
   @media (max-width: 768px) {
@@ -74,15 +92,15 @@
   &:hover {
     background: var(--priority-color);
     color: color(white) !important;
-    transform: translateY(-1px);
-    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   &--active {
     background: var(--priority-color);
     color: color(white);
     transform: translateY(-1px);
-    box-shadow: $shadow-md;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -95,7 +113,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  @include transition();
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: $shadow-sm;
 
   @media (max-width: 768px) {
@@ -107,8 +125,8 @@
     background: color(accent);
     color: color(white);
     border-color: color(accent);
-    transform: translateY(-1px);
-    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   &--active {
@@ -116,7 +134,7 @@
     color: color(white);
     border-color: color(accent);
     transform: translateY(-1px);
-    box-shadow: $shadow-md;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
 

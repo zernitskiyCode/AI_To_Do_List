@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './TaskList.scss';
 import { useTasks } from '../../hooks/useTasks';
 import EmptyState from './EmptyState';
@@ -9,7 +9,9 @@ const TaskList = ({
   onDeleteTask, 
 }) => {
   const [expandedTask, setExpandedTask] = useState(null);
+  const [visibleTasks, setVisibleTasks] = useState(new Set());
   const { tasks: allTasks } = useTasks();
+  const taskRefs = useRef({});
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -58,6 +60,40 @@ const TaskList = ({
   };
 
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const taskId = entry.target.dataset.taskId;
+          if (entry.isIntersecting) {
+            setVisibleTasks((prev) => new Set([...prev, taskId]));
+          } else {
+            setVisibleTasks((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(taskId);
+              return newSet;
+            });
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    Object.values(taskRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      Object.values(taskRefs.current).forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
+  }, [tasks]);
+
+
 
   if (tasks.length === 0) {
     return (
@@ -71,8 +107,12 @@ const TaskList = ({
     <div className="task-list">
       {tasks.map((task) => (
         <div 
-          key={task.id} 
-          className={`task-item ${task.completed ? 'task-item--completed' : ''}`}
+          key={task.id}
+          ref={(el) => (taskRefs.current[task.id] = el)}
+          data-task-id={task.id}
+          className={`task-item ${task.completed ? 'task-item--completed' : ''} ${
+            visibleTasks.has(String(task.id)) ? 'task-item--visible' : ''
+          }`}
         >
           <div className="task-item__header" onClick={() => handleToggleExpand(task.id)}>
             <div className="task-item__main">

@@ -17,7 +17,7 @@ export const useWeeklyStats = () => {
       // Если используем mock данные
       if (config.USE_MOCK_DATA) {
         // Имитируем задержку сети (300мс)
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 200));
         return generateWeeklyMockData(); // Генерируем новые данные каждый раз
       }
       

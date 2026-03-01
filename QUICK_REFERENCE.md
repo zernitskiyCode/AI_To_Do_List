@@ -10,10 +10,40 @@ src/
 ├── components/WeeklyProgressChart/
 │   ├── WeeklyProgressChart.jsx   ← График
 │   └── WeeklyProgressChart.scss  ← Стили
-└── pages/Stats/Stats.jsx         ← Страница
+└── pages/Stats/
+    ├── Stats.jsx                 ← Страница
+    └── Stats.scss                ← Анимация
 ```
 
 ## 🔧 Быстрые правки
+
+### Изменить скорость анимации карточек:
+```scss
+// Stats.scss
+.stat-card-wrapper {
+  .stats-grid--visible & {
+    animation: fadeInUp 0.6s ease-out forwards; // ← Измени 0.6s
+  }
+}
+```
+
+### Изменить задержку между карточками:
+```javascript
+// Stats.jsx
+style={{ animationDelay: `${index * 0.1}s` }} // ← Измени 0.1
+```
+
+### Изменить скорость анимации графика:
+```scss
+// Stats.scss
+.chart-wrapper {
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out; // ← Измени 0.8s
+  
+  &--visible {
+    transition-delay: 0.3s; // ← Измени задержку
+  }
+}
+```
 
 ### Изменить цвета столбцов:
 ```javascript
@@ -91,6 +121,50 @@ $color: #8B5CF6;
 }
 ```
 
+### Анимация:
+```scss
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.element {
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.1s; // Задержка
+}
+```
+
+## 🎬 Анимация шпаргалка
+
+### Типы анимации:
+```scss
+// CSS Animation (keyframes)
+animation: fadeInUp 0.6s ease-out forwards;
+
+// CSS Transition (плавный переход)
+transition: opacity 0.8s ease-out;
+```
+
+### Задержка:
+```scss
+animation-delay: 0.3s;        // Для animation
+transition-delay: 0.3s;       // Для transition
+```
+
+### Easing (плавность):
+```scss
+ease-out    // Быстро в начале, медленно в конце
+ease-in     // Медленно в начале, быстро в конце
+ease-in-out // Медленно в начале и конце
+linear      // Равномерно
+```
+
 ## 🐛 Решение проблем
 
 ### График не показывается:
@@ -98,6 +172,10 @@ $color: #8B5CF6;
 rm -rf node_modules/.vite
 npm run dev
 ```
+
+### Анимация не работает:
+1. Проверь импорт `import './Stats.scss';`
+2. Очисти кеш и перезапусти
 
 ### Ошибка импорта:
 Проверь пути:

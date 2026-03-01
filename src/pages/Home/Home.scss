@@ -31,6 +31,23 @@
     @media (max-width: 768px) {
       margin-bottom: 16px;
     }
+
+    // Анимации появления для компонентов
+    &:nth-child(1) { // VoiceInputCard
+      @include animate-slide-up(0.1s);
+    }
+
+    &:nth-child(2) { // SearchBar
+      @include animate-slide-up(0.2s);
+    }
+
+    &:nth-child(4) { // AddTaskButton (после tasks-section)
+      @include animate-slide-up(0.4s);
+    }
+
+    &:nth-child(5) { // TaskList
+      @include animate-slide-up(0.5s);
+    }
   }
 
   .tasks-section {
@@ -47,6 +64,7 @@
       margin: 0 -20px 0 -20px;
       padding: 20px;
       margin-bottom: 40px;
+      @include animate-slide-up(0.3s);
 
       @media (max-width: 768px) {
         margin: 0 -16px 0 -16px;

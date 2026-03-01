@@ -3,26 +3,29 @@ import PageHeader from '../../components/PageHeader/PageHeader';
 import WeeklyProgressChart from '../../components/WeeklyProgressChart/WeeklyProgressChart';
 import { useTaskState } from '../../hooks/useTaskState';
 import { useWeeklyStats, useStreak } from '../../hooks/useWeeklyStats';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import './Stats.scss';
 
-/**
- * Страница статистики
- * Показывает:
- * - 3 карточки: процент выполнения, задач готово, дней подряд
- * - График недели: столбчатая диаграмма за последние 7 дней
- */
+
 const Stats = () => {
-  // Получаем статистику задач (процент выполнения, количество)
   const { getTasksStats } = useTaskState();
   const TaskStats = useMemo(() => getTasksStats(), [getTasksStats]);
   
-  // Получаем данные для графика недели (mock или API)
   const { weeklyStats, isLoading: weeklyLoading } = useWeeklyStats();
   
-  // Получаем стрик (дни подряд) (mock или API)
-  const { streak, isLoading: streakLoading } = useStreak();
+  const { streak } = useStreak();
 
-  // Только 3 карточки (убрали "Всего задач")
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
   const statCards = [ 
     { 
       value: TaskStats.completionRate > 0 ? `${TaskStats.completionRate}%` : '0%',  
@@ -51,21 +54,30 @@ const Stats = () => {
       />
       
       <div className="stats-page__content">
-        {/* Верхние 3 карточки */}
-        <div className="stats-grid stats-grid--three">
+        {/* Верхние 3 карточки с анимацией */}
+        <div className={`stats-grid stats-grid--three ${isVisible ? 'stats-grid--visible' : ''}`}>
           {statCards.map((card, index) => (
-            <StatCard 
-              key={index} 
-              value={card.value} 
-              type={card.type}
-              subtitle={card.subtitle}
-            />
+            <div 
+              key={index}
+              className="stat-card-wrapper"
+              style={{ 
+                animationDelay: `${index * 0.1}s` // Задержка для каждой карточки
+              }}
+            >
+              <StatCard 
+                value={card.value} 
+                type={card.type}
+                subtitle={card.subtitle}
+              />
+            </div>
           ))}
         </div>
 
-        {/* График недели (показываем только после загрузки) */}
+        {/* График недели с анимацией (показываем только после загрузки) */}
         {!weeklyLoading && weeklyStats.length > 0 && (
-          <WeeklyProgressChart data={weeklyStats} />
+          <div className={`chart-wrapper ${isVisible ? 'chart-wrapper--visible' : ''}`}>
+            <WeeklyProgressChart data={weeklyStats} />
+          </div>
         )}
         
         {/* Заглушка при загрузке */}

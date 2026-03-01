@@ -22,9 +22,12 @@ npm install recharts
 - `src/components/WeeklyProgressChart/WeeklyProgressChart.jsx` - график
 - `src/components/WeeklyProgressChart/WeeklyProgressChart.scss` - стили
 
+#### Стили:
+- `src/pages/Stats/Stats.scss` - анимация появления
+
 ### 3. Обновлены файлы
 
-- `src/pages/Stats/Stats.jsx` - добавлен график, оставлено 3 карточки
+- `src/pages/Stats/Stats.jsx` - добавлен график, анимация, оставлено 3 карточки
 - `src/styles/_layout.scss` - сетка для 3 карточек + skeleton
 
 ### 4. Документация
@@ -39,19 +42,27 @@ npm install recharts
 
 ### Страница статистики теперь показывает:
 
-1. **3 карточки** (вместо 4):
+1. **3 карточки** (вместо 4) с анимацией появления:
    - Процент выполнения (фиолетовая)
    - Задач готово (зеленая)
    - Дней подряд (оранжевая, пока mock: 5)
+   - Появляются по очереди с задержкой 0.1с
 
-2. **График недели**:
+2. **График недели** с анимацией:
    - Столбчатая диаграмма за последние 7 дней
+   - Появляется после карточек с задержкой 0.3с
    - Цвет столбца зависит от процента:
      - ≥80% → Зеленый (отлично)
      - 50-79% → Фиолетовый (хорошо)
      - 20-49% → Оранжевый (средне)
      - <20% → Серый (плохо)
    - При наведении: tooltip с деталями
+
+3. **Анимация появления**:
+   - Плавное появление снизу вверх (fadeInUp)
+   - Карточки появляются по очереди
+   - График появляется последним
+   - Длительность: 0.6с для карточек, 0.8с для графика
 
 ---
 
@@ -68,6 +79,42 @@ config.USE_MOCK_DATA?
     ↓
 WeeklyProgressChart.jsx (график)
 ```
+
+---
+
+## 🎨 Как работает анимация
+
+### 1. Состояние видимости:
+```javascript
+const [isVisible, setIsVisible] = useState(false);
+
+useEffect(() => {
+  setTimeout(() => setIsVisible(true), 100);
+}, []);
+```
+
+### 2. CSS классы:
+```scss
+.stat-card-wrapper {
+  opacity: 0;
+  transform: translateY(20px);
+  
+  .stats-grid--visible & {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+}
+```
+
+### 3. Задержка для каждой карточки:
+```javascript
+style={{ animationDelay: `${index * 0.1}s` }}
+```
+
+### Результат:
+- Карточка 1: появляется через 0.0с
+- Карточка 2: появляется через 0.1с
+- Карточка 3: появляется через 0.2с
+- График: появляется через 0.3с после карточек
 
 ---
 
@@ -88,6 +135,7 @@ WeeklyProgressChart.jsx (график)
 - Как работает архитектура
 - Как работает Recharts (библиотека графиков)
 - Как работает SCSS (стили)
+- Как работает анимация
 - Примеры кода с комментариями
 
 ### Для backend разработчика:
@@ -103,8 +151,8 @@ WeeklyProgressChart.jsx (график)
 1. Запусти приложение: `npm run dev`
 2. Перейди на страницу "Статистика"
 3. Должны отобразиться:
-   - 3 карточки с данными
-   - График с mock данными за 7 дней
+   - 3 карточки с плавной анимацией появления
+   - График с анимацией появления
 4. Наведи на столбцы - должен появиться tooltip
 
 ---
@@ -116,11 +164,13 @@ WeeklyProgressChart.jsx (график)
 - **Recharts** - библиотека для графиков
 - **React Query** - кеширование данных
 - **SCSS** - стили с переменными
+- **CSS Animations** - плавные анимации
 
 ### Паттерны:
 - **Custom Hooks** - useWeeklyStats, useStreak
 - **Mock Data** - для разработки без backend
 - **Responsive Design** - адаптивность под мобильные
+- **Staggered Animation** - последовательная анимация
 
 ---
 
@@ -145,6 +195,11 @@ WeeklyProgressChart.jsx (график)
 2. Убедись что `USE_MOCK_DATA: true`
 3. Перезапусти dev сервер
 
+### Анимация не работает:
+1. Проверь что файл `Stats.scss` импортирован
+2. Очисти кеш: `rm -rf node_modules/.vite`
+3. Перезапусти: `npm run dev`
+
 ### Ошибка импорта:
 1. Очисти кеш: `rm -rf node_modules/.vite`
 2. Перезапусти: `npm run dev`
@@ -160,9 +215,9 @@ WeeklyProgressChart.jsx (график)
 
 1. **Изучи гайд** - `GUIDE_StatsPage_Explained.md`
 2. **Поэкспериментируй**:
-   - Измени цвета столбцов
-   - Измени высоту графика
-   - Добавь больше дней
+   - Измени скорость анимации
+   - Измени задержку между карточками
+   - Измени направление анимации
 3. **Дождись backend** - потом переключись на реальные данные
 
 ---
@@ -172,6 +227,7 @@ WeeklyProgressChart.jsx (график)
 - Recharts: https://recharts.org/
 - React Query: https://tanstack.com/query/latest
 - SCSS: https://sass-lang.com/guide
+- CSS Animations: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Animations
 
 ---
 
