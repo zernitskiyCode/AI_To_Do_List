@@ -1,0 +1,62 @@
+// Анимация появления для страницы статистики
+@import '../../styles/_variables';
+
+// Анимация для карточек статистики
+.stat-card-wrapper {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: none;
+  
+  // Когда родитель становится видимым, запускаем анимацию
+  .stats-grid--visible & {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+}
+
+// Анимация для графика
+.chart-wrapper {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  
+  &--visible {
+    opacity: 1;
+    transform: translateY(0);
+    // Задержка чтобы график появился после карточек
+    transition-delay: 0.3s;
+  }
+}
+
+// Keyframes для анимации появления снизу вверх
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Адаптивность для мобильных
+@media (max-width: 768px) {
+  .stat-card-wrapper {
+    transform: translateY(15px);
+  }
+  
+  .chart-wrapper {
+    transform: translateY(20px);
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

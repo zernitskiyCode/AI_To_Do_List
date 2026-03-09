@@ -1,0 +1,51 @@
+.task-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__number {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+
+    &--completed {
+      color: #10B981;
+    }
+
+    &--pending {
+      color: #F59E0B;
+    }
+
+    &--urgent {
+      color: #EF4444;
+    }
+  }
+
+  &__label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    @media (max-width: 768px) {
+      font-size: 10px;
+    }
+  }
+}

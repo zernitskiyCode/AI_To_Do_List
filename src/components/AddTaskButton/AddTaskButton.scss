@@ -1,0 +1,51 @@
+@import '../../styles/variables';
+
+.add-task-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 2px dashed color(accent);
+  border-radius: $card-radius;
+  background: rgba(79, 70, 229, 0.05);
+  color: color(accent);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  &__icon {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__text {
+    font-size: inherit;
+  }
+
+  &:hover {
+    background: rgba(79, 70, 229, 0.1);
+    border-color: #4338ca;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+
+    .add-task-button__icon {
+      transform: rotate(90deg);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
