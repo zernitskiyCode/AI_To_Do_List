@@ -36,6 +36,10 @@ src/
     ├── _components.scss
     ├── _layout.scss
     └── style.scss
+
+
+
+
 ```
 
 ## Функционал
