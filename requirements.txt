@@ -3,9 +3,9 @@ annotated-types==0.7.0
 anyio==4.12.1
 authx==1.5.0
 bcrypt==5.0.0
-certifi==2026.1.4
+certifi==2024.8.30
 cffi==2.0.0
-click==8.3.1
+click==8.1.7
 cryptography==46.0.3
 dnspython==2.8.0
 ecdsa==0.19.1

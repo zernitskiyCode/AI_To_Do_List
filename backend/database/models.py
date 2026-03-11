@@ -2,6 +2,8 @@
 from backend.database.db_connection import get_db_connection 
 
 def init_db():
+    db = None
+    cursor = None
     try:
         db = get_db_connection()
         cursor = db.cursor()
@@ -34,13 +36,14 @@ def init_db():
             user_id INTEGER NOT NULL REFERENCES users(id))
         """)
         db.commit()
-        cursor.close()
-        db.close()
         print("База данных успешно инициализирована.")
     except Exception as e:
-        cursor.close()
-        db.close()
         print(f"Ошибка при инициализации базы данных: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
 
 class User:
     def __init__(self, id: int, name: str, surname: str, email: str, password: str, created_at: str, is_active: bool):

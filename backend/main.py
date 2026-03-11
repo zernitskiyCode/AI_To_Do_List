@@ -11,6 +11,7 @@ from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate, TaskU
 from backend.auth import config, security
 from backend.dependencies import get_current_user_id
 from fastapi.logger import logger
+import traceback
 
 
 
@@ -66,12 +67,10 @@ def reg_user(user: UserCreate, response: Response):
         )
         logger.info("Пользователь успешно зарегистрирован: %s", user.email)
         return {"msg": "Пользователь создан", "access_token": token}
-    except HTTPException as e:
-        logger.error("HTTP ошибка при регистрации: %s - %s", e.status_code, e.detail)
-        raise e  # Пробрасываем HTTPException как есть
     except Exception as e:
-        logger.error("Неожиданная ошибка при регистрации: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Ошибка сервера: {str(e)}")
+        logger.error("ОШИБКА РЕГИСТРАЦИИ: %s", str(e))
+        logger.error("Traceback: %s", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/login", tags=["Авторизация"], summary="Авторизация пользователя")
 def login_user(user: UserLogin, response:Response):
