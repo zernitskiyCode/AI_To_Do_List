@@ -191,7 +191,6 @@ def get_user_tasks(user_id: int):
                     'dueDate': task['duedate'].isoformat() if task['duedate'] else None,
                     'tags': [task['category']] if task['category'] else []
                 }
-                print(f"📦 Задача {task['id']}: completed={task['completed']}, completedAt={task['completedat']}")
                 formatted_tasks.append(formatted_task)
             
             return formatted_tasks

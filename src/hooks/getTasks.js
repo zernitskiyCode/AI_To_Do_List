@@ -2,7 +2,6 @@ import Api from '../api/Api';
 
 export const getTasks = async () => {
   const response = await Api.get('/gettask');
-  console.log('📥 Данные с бэкенда (первая задача):', response.data[0]);
   return response.data;
 };
 
