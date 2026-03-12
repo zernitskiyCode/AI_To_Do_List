@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import DictCursor
-from backend.database.models import init_db
+from backend.database.models import init_db, migrate_add_completed_at
 # from backend.database.models import test
-from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile, update_task, get_user_categories, get_all_user_categories
+from backend.database.crud import create_user, authenticate_user, get_info, get_user_tasks, create_task, delete_task_id, get_info_profile, update_task, get_user_categories, get_all_user_categories, get_weekly_stats, get_user_streak
 from backend.schemas import UserCreate, UserLogin, TaskCreate, TaskCreate, TaskUpdate
 # from fastapi import HTTPException
 from backend.auth import config, security
@@ -52,6 +52,8 @@ def startup_event():
     print("Сервер стартовал!")
     init_db()
     print("База данных готова!")
+    migrate_add_completed_at()
+    print("Миграции выполнены!")
 
 # ---------- АВТОРИЗАЦИЯ ----------
 @app.post("/registration", tags=["Авторизация"], summary="Регистрация пользователя")
@@ -193,3 +195,42 @@ def get_all_categories(user_id: int = Depends(get_current_user_id)):
 @app.get("/", tags=["Тестирование"])
 def read_root():
     return {"message": "server is working!"}
+
+
+# ---------- СТАТИСТИКА ----------
+@app.get("/stats/weekly", tags=["Статистика"], summary="Статистика за неделю")
+def get_weekly_statistics(user_id: int = Depends(get_current_user_id)):
+    """
+    Возвращает статистику за последние 7 дней.
+    
+    Ответ: [
+        {
+            "date": "2026-03-06",
+            "completed": 3,
+            "total": 10,
+            "completionRate": 30.0
+        },
+        ... (7 дней)
+    ]
+    """
+    try:
+        stats = get_weekly_stats(user_id)
+        return stats
+    except Exception as e:
+        logger.error("Ошибка при получении недельной статистики: %s", e)
+        raise HTTPException(status_code=500, detail=f"Ошибка: {e}")
+
+
+@app.get("/stats/streak", tags=["Статистика"], summary="Стрик (дни подряд)")
+def get_streak(user_id: int = Depends(get_current_user_id)):
+    """
+    Возвращает количество дней подряд выполнения задач.
+    
+    Ответ: { "streak": 7 }
+    """
+    try:
+        streak = get_user_streak(user_id)
+        return {"streak": streak}
+    except Exception as e:
+        logger.error("Ошибка при получении стрика: %s", e)
+        raise HTTPException(status_code=500, detail=f"Ошибка: {e}")

@@ -165,6 +165,7 @@ def get_user_tasks(user_id: int):
                     END as priority,
                     t.created_at as createdAt,
                     t.completed,
+                    t.completed_at as completedAt,
                     t.tag as category,
                     ARRAY[t.tag] as tags
                 FROM task AS t
@@ -186,9 +187,11 @@ def get_user_tasks(user_id: int):
                     'category': task['category'] or 'personal',
                     'completed': task['completed'] or False,
                     'createdAt': task['createdat'].isoformat() if task['createdat'] else datetime.now().isoformat(),
+                    'completedAt': task['completedat'].isoformat() if task['completedat'] else None,
                     'dueDate': task['duedate'].isoformat() if task['duedate'] else None,
                     'tags': [task['category']] if task['category'] else []
                 }
+                print(f"📦 Задача {task['id']}: completed={task['completed']}, completedAt={task['completedat']}")
                 formatted_tasks.append(formatted_task)
             
             return formatted_tasks
@@ -233,14 +236,30 @@ def update_task(task_id: int, data: TaskUpdate, user_id: int):
             if not update_data:
                 raise HTTPException(status_code=400, detail="Нет данных для обновления")
 
+            # Автоматически обновляем completed_at при изменении completed
+            if 'completed' in update_data:
+                if update_data['completed']:
+                    # Задача завершена → записываем текущее время
+                    update_data['completed_at'] = 'CURRENT_TIMESTAMP'
+                else:
+                    # Задача снова не завершена → сбрасываем дату
+                    update_data['completed_at'] = None
+
             # Преобразуем priority если нужно
             if 'priority' in update_data and isinstance(update_data['priority'], str):
                 priority_map = {'low': 1, 'medium': 2, 'high': 3}
                 update_data['priority'] = priority_map.get(update_data['priority'], 2)
 
             # Формируем SET часть SQL
-            fields = [f"{key} = %s" for key in update_data.keys()]
-            values = list(update_data.values())
+            fields = []
+            values = []
+            for key, value in update_data.items():
+                if value == 'CURRENT_TIMESTAMP':
+                    fields.append(f"{key} = CURRENT_TIMESTAMP")
+                else:
+                    fields.append(f"{key} = %s")
+                    values.append(value)
+            
             values.append(task_id)  # id для WHERE
 
             query = f"UPDATE task SET {', '.join(fields)} WHERE id = %s"
@@ -341,3 +360,119 @@ def get_user_categories(user_id: int):
                     })
             
             return all_categories
+
+
+# ========== СТАТИСТИКА ==========
+
+def get_weekly_stats(user_id: int):
+    """
+    Возвращает статистику за последние 7 дней.
+    Для каждого дня:
+    - date: дата (YYYY-MM-DD)
+    - completed: количество выполненных задач
+    - total: общее количество задач
+    - completionRate: процент выполнения
+    """
+    with get_db_connection() as db:
+        with db.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                WITH dates AS (
+                    -- Генерируем последние 7 дней
+                    SELECT generate_series(
+                        CURRENT_DATE - INTERVAL '6 days',
+                        CURRENT_DATE,
+                        '1 day'::interval
+                    )::date AS date
+                ),
+                completed_tasks AS (
+                    -- Считаем выполненные задачи по дням
+                    SELECT 
+                        DATE(t.completed_at) as completion_date,
+                        COUNT(*) as completed_count
+                    FROM task t
+                    JOIN task_users tu ON t.id = tu.task_id
+                    WHERE tu.user_id = %s 
+                        AND t.completed = true
+                        AND t.completed_at >= CURRENT_DATE - INTERVAL '6 days'
+                    GROUP BY DATE(t.completed_at)
+                )
+                SELECT 
+                    d.date,
+                    COALESCE(ct.completed_count, 0) as completed,
+                    (
+                        -- Считаем общее количество задач на эту дату
+                        SELECT COUNT(*)
+                        FROM task t2
+                        JOIN task_users tu2 ON t2.id = tu2.task_id
+                        WHERE tu2.user_id = %s
+                            AND t2.created_at::date <= d.date
+                            AND (t2.completed_at IS NULL OR t2.completed_at::date >= d.date)
+                    ) as total
+                FROM dates d
+                LEFT JOIN completed_tasks ct ON d.date = ct.completion_date
+                ORDER BY d.date
+            """, (user_id, user_id))
+            
+            stats = cursor.fetchall()
+            
+            # Форматируем результат
+            result = []
+            for stat in stats:
+                total = stat['total']
+                completed = stat['completed']
+                completion_rate = round((completed / total * 100), 1) if total > 0 else 0
+                
+                result.append({
+                    'date': stat['date'].isoformat(),
+                    'completed': completed,
+                    'total': total,
+                    'completionRate': completion_rate
+                })
+            
+            return result
+
+
+def get_user_streak(user_id: int):
+    """
+    Возвращает стрик (дни подряд выполнения задач).
+    Считается с сегодняшнего дня назад.
+    Если сегодня не выполнено ни одной задачи → стрик = 0.
+    """
+    with get_db_connection() as db:
+        with db.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Получаем все даты выполнения задач за последний год
+            cursor.execute("""
+                SELECT DISTINCT DATE(completed_at) as completion_date
+                FROM task t
+                JOIN task_users tu ON t.id = tu.task_id
+                WHERE tu.user_id = %s 
+                    AND t.completed = true
+                    AND t.completed_at IS NOT NULL
+                    AND t.completed_at >= CURRENT_DATE - INTERVAL '365 days'
+                ORDER BY completion_date DESC
+            """, (user_id,))
+            
+            dates = cursor.fetchall()
+            
+            if not dates:
+                return 0
+            
+            # Проверяем стрик
+            from datetime import date, timedelta
+            today = date.today()
+            
+            completion_dates = [row['completion_date'] for row in dates]
+            
+            # Если сегодня нет выполненных задач → стрик = 0
+            if today not in completion_dates:
+                return 0
+            
+            # Считаем стрик (идем назад от сегодня)
+            streak = 1
+            current_date = today - timedelta(days=1)
+            
+            while current_date in completion_dates:
+                streak += 1
+                current_date -= timedelta(days=1)
+            
+            return streak

@@ -32,7 +32,7 @@ const Home = ({
   const { isActive: isModalActive, toggle: toggleModal } = useModal();
 
   // Получаем данные и методы из useTasks
-  const { tasks, isLoading, error, updateTask, deleteTask, toggleComplete } = useTasks();
+  const { tasks, isLoading, error, updateTask, deleteTask, toggleComplete, isTogglingComplete } = useTasks();
   
   const filteredTasks = useFilteredTasks({
     priority: selectedPriority,
@@ -58,7 +58,7 @@ const Home = ({
   };
 
   const handleToggleComplete = (taskId) => {
-    toggleComplete({ taskId });
+    toggleComplete(taskId);
   };
 
   const handleDeleteTask = (taskId) => {
@@ -152,6 +152,7 @@ const Home = ({
               onToggleComplete={handleToggleComplete}
               onDeleteTask={handleDeleteTask}
               onUpdateTask={updateTask}
+              isTogglingComplete={isTogglingComplete}
             />
           </div>
         </div>

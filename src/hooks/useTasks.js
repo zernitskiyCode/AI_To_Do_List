@@ -32,7 +32,8 @@ export const useTasks = () => {
       
       return { previousTasks };
     },
-    onError: (context) => {
+    onError: (error, variables, context) => {
+      console.error('Ошибка при создании задачи:', error);
       if (context?.previousTasks) {
         queryClient.setQueryData(['tasks'], context.previousTasks);
       }
@@ -54,26 +55,33 @@ export const useTasks = () => {
   });
 
   const toggleComplete = useMutation({
-    mutationFn: ({ taskId }) => {
-      const currentTasks = queryClient.getQueryData(['tasks']) || [];
-      const currentTask = currentTasks.find(task => task.id === taskId);
-      const newCompleted = !currentTask?.completed;
-      
+    mutationFn: ({ taskId, newCompleted }) => {
       return updateTaskInDB(taskId, { completed: newCompleted });
     },
     onMutate: async ({ taskId }) => {
       await queryClient.cancelQueries(['tasks']);
       const previousTasks = queryClient.getQueryData(['tasks']);
       
+      const currentTask = previousTasks.find(task => task.id === taskId);
+      const newCompleted = !currentTask?.completed;
+      
       queryClient.setQueryData(['tasks'], (old) =>
         old.map(task =>
-          task.id === taskId ? { ...task, completed: !task.completed } : task
+          task.id === taskId ? { 
+            ...task, 
+            completed: newCompleted,
+            completedAt: newCompleted ? new Date().toISOString() : null,
+          } : task
         )
       );
       
-      return { previousTasks };
+      return { previousTasks, newCompleted };
     },
-    onError: (context) => {
+    onSuccess: (data, variables) => {
+      // Успешно обновлено
+    },
+    onError: (error, variables, context) => {
+      console.error('Ошибка при изменении статуса задачи:', error);
       if (context?.previousTasks) {
         queryClient.setQueryData(['tasks'], context.previousTasks);
       }
@@ -87,7 +95,13 @@ export const useTasks = () => {
     createTask: createTask.mutate,
     updateTask: updateTask.mutate,
     deleteTask: deleteTask.mutate,
-    toggleComplete: toggleComplete.mutate,
+    toggleComplete: (taskId) => {
+      const currentTasks = queryClient.getQueryData(['tasks']) || [];
+      const currentTask = currentTasks.find(task => task.id === taskId);
+      const newCompleted = !currentTask?.completed;
+      toggleComplete.mutate({ taskId, newCompleted });
+    },
+    isTogglingComplete: toggleComplete.isPending,
   };
 };
 

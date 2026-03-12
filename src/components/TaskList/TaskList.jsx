@@ -6,7 +6,8 @@ import EmptyState from './EmptyState';
 const TaskList = ({ 
   tasks = [], 
   onToggleComplete, 
-  onDeleteTask, 
+  onDeleteTask,
+  isTogglingComplete = false,
 }) => {
   const [expandedTask, setExpandedTask] = useState(null);
   const [visibleTasks, setVisibleTasks] = useState(new Set());
@@ -118,9 +119,17 @@ const TaskList = ({
             <div className="task-item__main">
               <button
                 className="task-item__checkbox"
+                disabled={isTogglingComplete}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onToggleComplete?.(task.id);
+                  if (!isTogglingComplete) {
+                    onToggleComplete?.(task.id);
+                  }
+                }}
+                style={{ 
+                  opacity: isTogglingComplete ? 0.5 : 1, 
+                  cursor: isTogglingComplete ? 'not-allowed' : 'pointer',
+                  pointerEvents: isTogglingComplete ? 'none' : 'auto'
                 }}
               >
                 {task.completed ? '✓' : ''}

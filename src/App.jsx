@@ -5,7 +5,6 @@ import {
   Route, 
   useNavigate 
 } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
@@ -28,8 +27,6 @@ const APP_CONFIG = {
     { path: '/profile', icon: '👤', label: 'Профиль' },
   ],
 };
-
-const queryClient = new QueryClient();
 
 
 const MainApp = () => {
@@ -94,13 +91,11 @@ const AppContent = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Перенаправляем на /auth только если точно не авторизованы (не в процессе загрузки)
     if (!isLoading && !isAuthenticated) {
       navigate('/auth', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Показываем лоадер пока проверяем авторизацию
   if (isLoading) {
     return (
       <div style={{ 
@@ -115,7 +110,6 @@ const AppContent = () => {
     );
   }
 
-  // Если не авторизован, показываем null (перенаправление уже произошло)
   if (!isAuthenticated) {
     return null;
   }
@@ -126,15 +120,13 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          
-          <Route path="/*" element={<AppContent />} />
-        </Routes>
-      </Router>
-    </QueryClientProvider>
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<Auth />} />
+        
+        <Route path="/*" element={<AppContent />} />
+      </Routes>
+    </Router>
   );
 };
 
