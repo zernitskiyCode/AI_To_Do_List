@@ -13,7 +13,7 @@
   .stat-number {
     font-size: 28px;
     font-weight: 600;
-    color: color(success);
+    color: var(--color-success);
     
     @include respond-to(md) {
       font-size: 32px;
@@ -22,11 +22,11 @@
   
   // Варианты карточек
   &:nth-child(2) .stat-number {
-    color: color(accent);
+    color: var(--color-accent);
   }
   
   &:nth-child(3) .stat-number {
-    color: color(success);
+    color: var(--color-success);
   }
   
   &:nth-child(4) .stat-number {
@@ -45,8 +45,8 @@
   
   // Основная кнопка
   &--primary {
-    background: color(accent);
-    color: color(white);
+    background: var(--color-accent);
+    color: var(--color-white);
     
     &:hover {
       background: darken(color(accent), 5%);
@@ -61,25 +61,25 @@
   
   // Вторичная кнопка
   &--secondary {
-    background: color(white);
-    color: color(accent);
-    border: 1px solid color(accent);
+    background: var(--color-white);
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
     
     &:hover {
-      background: color(accent);
-      color: color(white);
+      background: var(--color-accent);
+      color: var(--color-white);
     }
   }
   
   // Кнопка выхода
   &--logout {
     background: transparent;
-    color: color(text-light);
+    color: var(--color-text-light);
     font-size: map-get($font-sizes, caption);
     padding: 8px 16px;
     
     &:hover {
-      color: color(accent);
+      color: var(--color-accent);
     }
   }
 }
@@ -89,8 +89,8 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: color(accent);
-  color: color(white);
+  background: var(--color-accent);
+  color: var(--color-white);
   @include flex-center;
   font-size: 28px;
   font-weight: 600;
@@ -101,12 +101,12 @@
 .premium-banner {
   @include premium-gradient;
   @include card;
-  color: color(white);
+  color: var(--color-white);
   text-align: center;
   margin: $base-padding 0;
   
   h3 {
-    color: color(white);
+    color: var(--color-white);
     font-size: 24px;
     margin-bottom: 8px;
   }
@@ -118,8 +118,8 @@
   }
   
   .btn {
-    background: color(white);
-    color: color(accent);
+    background: var(--color-white);
+    color: var(--color-accent);
     font-weight: 600;
     
     &:hover {
@@ -132,10 +132,10 @@
 
 // Элементы списка
 .list-item {
-  background: color(white);
+  background: var(--color-white);
   padding: 16px $base-padding;
   @include flex-between;
-  border-bottom: 1px solid color(border);
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   @include transition();
   
@@ -151,11 +151,12 @@
   }
   
   &:hover {
-    background: color(bg);
+    background: var(--color-bg);
   }
   
   &:active {
-    background: darken(color(bg), 2%);
+    background: var(--color-bg);
+    opacity: 0.8;
   }
 
   &--logout {
@@ -176,7 +177,7 @@
   position: relative;
   width: 48px;
   height: 28px;
-  background: color(border);
+  background: var(--color-border);
   border-radius: 14px;
   cursor: pointer;
   @include transition();
@@ -186,7 +187,7 @@
     position: absolute;
     width: 24px;
     height: 24px;
-    background: color(white);
+    background: var(--color-white);
     border-radius: 50%;
     top: 2px;
     left: 2px;
@@ -195,7 +196,7 @@
   }
   
   &--active {
-    background: color(success);
+    background: var(--color-success);
     
     &::after {
       left: 22px;
@@ -228,22 +229,22 @@
   select {
     width: 100%;
     padding: 12px 16px;
-    border: 1px solid color(border);
+    border: 1px solid var(--color-border);
     border-radius: $btn-radius;
-    background: color(white);
-    color: color(text);
+    background: var(--color-white);
+    color: var(--color-text);
     font-family: inherit;
     font-size: map-get($font-sizes, body);
     cursor: pointer;
     @include transition();
     
     &:hover {
-      border-color: color(accent);
+      border-color: var(--color-accent);
     }
     
     &:focus {
       outline: none;
-      border-color: color(accent);
+      border-color: var(--color-accent);
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
   }
@@ -252,7 +253,7 @@
 // Email текст
 .email {
   font-size: map-get($font-sizes, caption);
-  color: color(text-light);
+  color: var(--color-text-light);
   text-align: center;
   margin-top: 4px;
 }
@@ -268,7 +269,7 @@
   .section-title {
     font-size: map-get($font-sizes, caption);
     font-weight: 600;
-    color: color(text-light);
+    color: var(--color-text-light);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 12px;

@@ -38,6 +38,11 @@ const MainApp = () => {
     language: 'ru',
   });
 
+  // Применяем тему к body при изменении
+  useEffect(() => {
+    document.body.setAttribute('data-theme', settings.theme);
+  }, [settings.theme]);
+
   const handleToggleQuietMode = () => {
     setSettings((prev) => ({ ...prev, quietMode: !prev.quietMode }));
   };

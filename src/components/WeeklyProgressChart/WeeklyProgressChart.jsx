@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useEffect, useState } from 'react';
 import './WeeklyProgressChart.scss';
 
 /**
@@ -12,6 +13,40 @@ import './WeeklyProgressChart.scss';
  *   completionRate - процент выполнения (0-100)
  */
 const WeeklyProgressChart = ({ data }) => {
+  // Состояние для динамических цветов из CSS переменных
+  const [chartColors, setChartColors] = useState({
+    grid: '#E5E7EB',
+    axis: '#6B7280',
+  });
+
+  // Получаем цвета из CSS переменных при монтировании и изменении темы
+  useEffect(() => {
+    const updateColors = () => {
+      const root = document.documentElement;
+      const computedStyle = getComputedStyle(root);
+      
+      setChartColors({
+        grid: computedStyle.getPropertyValue('--color-border').trim() || '#E5E7EB',
+        axis: computedStyle.getPropertyValue('--color-text-light').trim() || '#6B7280',
+      });
+    };
+
+    updateColors();
+
+    // Слушаем изменения атрибута data-theme
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          updateColors();
+        }
+      });
+    });
+
+    observer.observe(document.body, { attributes: true });
+
+    return () => observer.disconnect();
+  }, []);
+
   // Преобразуем данные: дата → название дня недели
   const chartData = data.map(item => {
     const date = new Date(item.date);
@@ -70,19 +105,19 @@ const WeeklyProgressChart = ({ data }) => {
       <div className="weekly-chart__content">
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
-            {/* Сетка */}
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+            {/* Сетка - динамический цвет из CSS переменной */}
+            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
             
-            {/* Ось X (дни недели) */}
+            {/* Ось X (дни недели) - динамический цвет */}
             <XAxis 
               dataKey="day" 
-              stroke="#6B7280"
+              stroke={chartColors.axis}
               style={{ fontSize: '14px', fontWeight: '500' }}
             />
             
-            {/* Ось Y (проценты 0-100%) */}
+            {/* Ось Y (проценты 0-100%) - динамический цвет */}
             <YAxis 
-              stroke="#6B7280"
+              stroke={chartColors.axis}
               style={{ fontSize: '14px' }}
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
