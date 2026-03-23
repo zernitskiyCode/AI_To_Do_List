@@ -58,17 +58,15 @@
       top: 0;
       z-index: 200;
       background: #F9FAFB;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.6);
       margin: 0 -20px 0 -20px;
-      padding: 20px;
-      margin-bottom: 40px;
+      padding: 12px 20px;
+      margin-bottom: 20px;
       @include animate-slide-up(0.3s);
 
       @media (max-width: 768px) {
         margin: 0 -16px 0 -16px;
-        padding: 16px;
+        padding: 10px 16px;
         margin-bottom: 16px;
       }
 

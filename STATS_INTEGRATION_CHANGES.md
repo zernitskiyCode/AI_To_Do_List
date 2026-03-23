@@ -11,7 +11,6 @@
 - [x] Обновлен `toggleComplete` в `useTasks.js` - добавлена запись `completedAt`
   - При завершении задачи: `completedAt = new Date().toISOString()`
   - При отмене завершения: `completedAt = null`
-  - Добавлена инвалидация кеша статистики (`weeklyStats`, `streak`)
 
 ### 1.5. КРИТИЧЕСКОЕ: Добавлены отсутствующие backend endpoints
 - [x] Добавлена функция `get_weekly_stats()` в `backend/database/crud.py`
@@ -40,85 +39,6 @@
 
 ---
 
-## Детали изменений
-
-### `src/hooks/useTasks.js`
-**Изменение в `toggleComplete` mutation:**
-```javascript
-// Добавлено в onMutate:
-completedAt: !task.completed ? new Date().toISOString() : null
-
-// Добавлено в onSuccess:
-queryClient.invalidateQueries(['weeklyStats']);
-queryClient.invalidateQueries(['streak']);
-```
-**Причина:** При изменении статуса задачи фронтенд теперь обновляет `completedAt` и инвалидирует кеш статистики.
-
----
-
-### `src/hooks/useWeeklyStats.js`
-**До:**
-- Использовал `config.USE_MOCK_DATA` для переключения между mock и реальными данными
-- Импортировал `generateWeeklyMockData` и `generateStreakMockData`
-
-**После:**
-- Прямой вызов API: `Api.get('/stats/weekly')` и `Api.get('/stats/streak')`
-- Удалены все условия и mock функции
-- Чистый код без лишних зависимостей
-
----
-
-### Удаленные файлы
-1. **`src/mocks/mockStatsData.js`** - больше не нужен
-2. **`src/config/config.js`** - флаг `USE_MOCK_DATA` больше не используется
-
----
-
-## Что теперь работает
-
-✅ При завершении задачи (`toggleComplete`) фронтенд:
-- Отправляет `completed: true` на бэкенд
-- Локально обновляет `completedAt` для оптимистичного UI
-- Инвалидирует кеш статистики для обновления графиков
-
-✅ Страница Stats теперь:
-- Получает реальные данные за неделю из `/stats/weekly`
-- Получает реальный стрик из `/stats/streak`
-- Автоматически обновляется при изменении задач
-
----
-
-## Следующие шаги (если нужно)
-
-- Тестирование интеграции с бэкендом
-- Проверка корректности отображения данных
-- Обработка ошибок API (если нужно)
-
----
-
-## ✅ Финальная проверка стабильности
-
-### Проверено:
-- ✅ Нет импортов удаленных файлов (`config.js`, `mockStatsData.js`)
-- ✅ API endpoints корректно подключены (`/stats/weekly`, `/stats/streak`)
-- ✅ `toggleComplete` правильно обновляет `completedAt` и инвалидирует кеш
-- ✅ Страница Stats продолжит работать без изменений
-- ✅ Все хуки используют правильные query keys для кеширования
-
-### Что работает:
-1. **Задачи**: При завершении/отмене задачи обновляется `completedAt`
-2. **Статистика**: Автоматически обновляется при изменении задач
-3. **Кеширование**: React Query кеширует данные на 5 минут
-4. **Оптимистичные обновления**: UI обновляется мгновенно, затем синхронизируется с сервером
-
-### Безопасность:
-- Все изменения обратимы через `onError` callbacks
-- Fallback значения: `weeklyStats = []`, `streak = 0`
-- Graceful degradation при ошибках API
-
-
----
-
 ## 4. Оптимизация и исправление багов
 
 ### Проблема: Куча повторных запросов при toggleComplete
@@ -134,36 +54,15 @@ queryClient.invalidateQueries(['streak']);
 - [x] Оптимизирован `toggleComplete` - убрана `invalidateQueries(['tasks'])`
 - [x] **КРИТИЧНО**: Удалено дублирование QueryClient из `App.jsx`
 - [x] Настроены глобальные дефолтные опции QueryClient в `main.jsx`
-- [x] Добавлено детальное логирование для отладки
 
 ### Результат:
 - Теперь при изменении статуса задачи делается только 1 запрос к API
 - Статистика обновляется автоматически
 - UI обновляется мгновенно (оптимистичное обновление)
 
-
 ---
 
-## 5. Финальное исправление каскада запросов
-
-### Проблема: 
-Инвалидация `weeklyStats` и `streak` вызывала каскад запросов `/me`, `/gettask`, `/categories`
-
-### Причина:
-Инвалидация статистики триггерила ре-рендер компонентов, которые в свою очередь вызывали другие хуки
-
-### Решение:
-Добавлена задержка 100мс перед инвалидацией статистики с помощью `setTimeout`
-
-### Результат:
-- ✅ При изменении статуса задачи делается только 1 запрос к API
-- ✅ UI обновляется мгновенно
-- ✅ Статистика обновляется с небольшой задержкой (незаметно для пользователя)
-- ✅ Никаких лишних запросов
-
----
-
-## 6. Финальное решение проблемы каскада запросов
+## 5. Финальное решение проблемы каскада запросов
 
 ### Проблема:
 Любая инвалидация статистики (`weeklyStats`, `streak`) вызывала каскад запросов
@@ -177,33 +76,9 @@ queryClient.invalidateQueries(['streak']);
 - ⚠️ Статистика обновится при следующем заходе на страницу Stats (или при перезагрузке)
 - ⚠️ Кеш статистики - 5 минут
 
-### Альтернатива (если нужно):
-Можно добавить кнопку "Обновить" на странице Stats для ручного обновления данных
-
 ---
 
-## Итоговые изменения фронтенда
-
-### Основная логика:
-1. **Оптимистичные обновления**: UI обновляется мгновенно при изменении задачи
-2. **Минимум запросов**: Только необходимые API вызовы
-3. **Глобальные настройки QueryClient**: Отключен refetch при фокусе окна
-4. **Удалено дублирование**: Один QueryClient для всего приложения
-
-### Файлы с изменениями:
-- `src/main.jsx` - настройка QueryClient с дефолтными опциями
-- `src/App.jsx` - удалено дублирование QueryClient
-- `src/hooks/useTasks.js` - оптимизирован toggleComplete
-- `src/hooks/useWeeklyStats.js` - подключены реальные API
-- `src/hooks/useCategories.js` - оптимизация запросов
-- `backend/database/models.py` - добавлено поле completed_at + миграция
-- `backend/database/crud.py` - функции get_weekly_stats, get_user_streak, обновлен update_task
-- `backend/main.py` - endpoints /stats/weekly, /stats/streak
-
-
----
-
-## 7. Исправление проблемы двойного клика
+## 6. Исправление проблемы двойного клика
 
 ### Проблема:
 При быстром двойном клике на чекбокс задача сначала завершалась, а потом сразу отменялась. В БД оставалось `completed=False, completed_at=None`.
@@ -212,13 +87,66 @@ queryClient.invalidateQueries(['streak']);
 UI позволял кликнуть дважды до завершения первого запроса
 
 ### Решение:
-1. Добавлен флаг `isUpdating` в состояние задачи
+1. Добавлен флаг `isPending` из mutation
 2. Кнопка блокируется (`disabled`) пока идет запрос
 3. Визуальная индикация (opacity 0.5) во время обновления
 
 ### Файлы:
-- `src/hooks/useTasks.js` - добавлен флаг isUpdating
+- `src/hooks/useTasks.js` - добавлен флаг isTogglingComplete
 - `src/components/TaskList/TaskList.jsx` - блокировка кнопки при обновлении
+
+---
+
+## 7. КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Race condition в toggleComplete
+
+### Проблема:
+После перезагрузки страницы (F5) данные показывали `completed: false, completedAt: null`, хотя UI показывал что задача завершена.
+
+### Причина:
+Race condition в `toggleComplete` - функция читала старое значение `completed` из кеша ПОСЛЕ того как `onMutate` уже изменил его оптимистично. В результате:
+1. `onMutate` меняет `completed: false → true` в кеше
+2. `mutationFn` читает кеш и видит уже измененное значение `completed: true`
+3. `mutationFn` вычисляет `newCompleted = !true = false`
+4. Отправляет на backend `completed: false` вместо `completed: true`
+
+### Решение:
+Изменена логика `toggleComplete`:
+1. Вычисление `newCompleted` перенесено в `onMutate` (до изменения кеша)
+2. `newCompleted` передается через context в `mutationFn`
+3. Обертка в `return` для удобного вызова `toggleComplete(taskId)`
+
+### Код:
+```javascript
+// До (НЕПРАВИЛЬНО):
+mutationFn: ({ taskId }) => {
+  const currentTasks = queryClient.getQueryData(['tasks']) || [];
+  const currentTask = currentTasks.find(task => task.id === taskId);
+  const newCompleted = !currentTask?.completed; // ❌ Читает уже измененное значение
+  return updateTaskInDB(taskId, { completed: newCompleted });
+}
+
+// После (ПРАВИЛЬНО):
+mutationFn: ({ taskId, newCompleted }) => {
+  return updateTaskInDB(taskId, { completed: newCompleted });
+},
+onMutate: async ({ taskId }) => {
+  const previousTasks = queryClient.getQueryData(['tasks']);
+  const currentTask = previousTasks.find(task => task.id === taskId);
+  const newCompleted = !currentTask?.completed; // ✅ Читает ДО изменения
+  // ... обновляем кеш ...
+  return { previousTasks, newCompleted };
+}
+```
+
+### Файлы:
+- `src/hooks/useTasks.js` - исправлена логика toggleComplete
+- `src/pages/Home/Home.jsx` - обновлен вызов toggleComplete
+
+### Результат:
+✅ Данные корректно сохраняются в БД
+✅ completedAt записывается правильно
+✅ После перезагрузки страницы данные сохраняются
+✅ Статистика работает корректно
 
 ---
 
@@ -228,46 +156,27 @@ UI позволял кликнуть дважды до завершения пе
 1. ✅ toggleComplete - только 1 запрос, никаких дублей
 2. ✅ Защита от двойного клика
 3. ✅ completed_at записывается в БД корректно
-4. ✅ Статистика показывает реальные данные
-5. ✅ Оптимистичные обновления UI
-6. ✅ Минимум запросов к API
+4. ✅ Данные сохраняются после перезагрузки страницы
+5. ✅ Статистика показывает реальные данные
+6. ✅ Оптимистичные обновления UI
+7. ✅ Минимум запросов к API
 
 ### Компромиссы:
 - Статистика обновляется при заходе на страницу Stats (не автоматически)
 - Кеш статистики - 5 минут
 
-### Все логи удалены из production кода
+### Итоговые изменения фронтенда:
+- `src/main.jsx` - настройка QueryClient с дефолтными опциями
+- `src/App.jsx` - удалено дублирование QueryClient
+- `src/hooks/useTasks.js` - исправлена race condition в toggleComplete
+- `src/hooks/getTasks.js` - чистый код без логов
+- `src/hooks/useWeeklyStats.js` - подключены реальные API
+- `src/pages/Home/Home.jsx` - обновлен вызов toggleComplete
+- `src/components/TaskList/TaskList.jsx` - блокировка при обновлении
 
+### Итоговые изменения бэкенда:
+- `backend/database/models.py` - добавлено поле completed_at + миграция
+- `backend/database/crud.py` - функции get_weekly_stats, get_user_streak, обновлен update_task и get_user_tasks
+- `backend/main.py` - endpoints /stats/weekly, /stats/streak
 
----
-
-## 8. КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Проблема чтения completedAt из БД
-
-### Проблема:
-После перезагрузки страницы (F5) данные показывали `completed: false, completedAt: null`, хотя backend логи показывали успешное сохранение в БД.
-
-### Причина:
-В функции `get_user_tasks()` в `backend/database/crud.py` была ошибка чтения данных из PostgreSQL:
-- PostgreSQL конвертирует все unquoted identifiers в lowercase
-- SQL query использовал `t.completed_at as completedAt` (camelCase)
-- Но PostgreSQL возвращал это как `completedat` (lowercase)
-- Код пытался прочитать `task['completedat']` вместо `task.get('completedat')`
-
-### Решение:
-Исправлен доступ к полю `completedat` в `backend/database/crud.py`:
-```python
-# Было:
-'completedAt': task.get('completedat').isoformat() if task.get('completedat') else None
-
-# Стало:
-'completedAt': task['completedat'].isoformat() if task['completedat'] else None
-```
-
-### Файлы:
-- `backend/database/crud.py` - исправлен доступ к полю completedat
-- `src/hooks/getTasks.js` - удалены debug логи
-
-### Результат:
-✅ Данные корректно читаются из БД после перезагрузки
-✅ completedAt сохраняется и отображается правильно
-✅ Статистика работает корректно
+### Все debug логи удалены из production кода

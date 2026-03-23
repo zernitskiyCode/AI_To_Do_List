@@ -8,9 +8,9 @@ import { useAuth } from '../../hooks/useAuth';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, login, register: registerUser, loginLoading, registerLoading, loginError, registerError } = useAuth(); 
+  const { isAuthenticated, login, register: registerUser } = useAuth(); // loginLoading, registerLoading, loginError, registerError
   
-
+  
   const [authMode, setAuthMode] = useState('login'); // login | register
 
 
@@ -73,8 +73,8 @@ const Auth = () => {
     reset(); 
   };
 
-  const isLoading = authMode === 'login' ? loginLoading : registerLoading;
-  const error = authMode === 'login' ? loginError : registerError;
+  // const isLoading = authMode === 'login' ? loginLoading : registerLoading;
+  // const error = authMode === 'login' ? loginError : registerError;
 
   return (
     <div className="auth-container">
@@ -110,14 +110,14 @@ const Auth = () => {
             {errors.password && <div className="error-message">{errors.password.message}</div>}
           </div>
 
-          {error && (
+          {/* {error && (
             <div className="error-message">
               {error.response?.data?.message || 'Ошибка'}
             </div>
-          )}
+          )} */}
 
-          <button type="submit" className="auth-button" disabled={isLoading}>
-            {isLoading ? 'Загрузка...' : authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
+          <button type="submit" className="auth-button">
+            {authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -88,13 +89,18 @@ const MainApp = () => {
 
 const AppContent = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  if (!isAuthenticated) {
+  return <Navigate to="/auth" replace />;
+}
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/auth', { replace: true });
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+  // useEffect(() => {
+  //   if (!isLoading && !isAuthenticated) {
+  //     // navigate('/auth', { replace: true });
+  //     return <Navigate to="/auth" replace />
+
+  //   }
+  // }, [isAuthenticated, isLoading, navigate]);
 
   if (isLoading) {
     return (

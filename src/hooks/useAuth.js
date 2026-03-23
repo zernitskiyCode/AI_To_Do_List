@@ -18,14 +18,14 @@ export const useAuth = () => {
       }
     },
     retry: (failureCount, error) => {
-      if (error?.response?.status === 401) return false;
+      if (error?.response?.status === 401) return null;
       return failureCount < 2;
     },
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // 5 
     enabled: true,
   });
-
+ 
   const loginMutation = useMutation({
     mutationFn: async (credentials) => {
       const response = await Api.post('/login', credentials);

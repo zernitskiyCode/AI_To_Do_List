@@ -3,7 +3,7 @@ import PageHeader from '../../components/PageHeader/PageHeader';
 import WeeklyProgressChart from '../../components/WeeklyProgressChart/WeeklyProgressChart';
 import { useTaskState } from '../../hooks/useTaskState';
 import { useWeeklyStats, useStreak } from '../../hooks/useWeeklyStats';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import './Stats.scss';
 
 
@@ -12,19 +12,9 @@ const Stats = () => {
   const TaskStats = useMemo(() => getTasksStats(), [getTasksStats]);
   
   const { weeklyStats, isLoading: weeklyLoading } = useWeeklyStats();
+
   
   const { streak } = useStreak();
-
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
 
   const statCards = [ 
     { 
@@ -55,42 +45,34 @@ const Stats = () => {
       
       <div className="stats-page__content">
         {/* Верхние 3 карточки с анимацией */}
-        <div className={`stats-grid stats-grid--three ${isVisible ? 'stats-grid--visible' : ''}`}>
+        <div className="stats-grid stats-grid--three">
           {statCards.map((card, index) => (
-            <div 
+            <StatCard
               key={index}
-              className="stat-card-wrapper"
-              style={{ 
-                animationDelay: `${index * 0.1}s` // Задержка для каждой карточки
-              }}
-            >
-              <StatCard 
-                value={card.value} 
-                type={card.type}
-                subtitle={card.subtitle}
-              />
-            </div>
+              value={card.value}
+              type={card.type}
+              subtitle={card.subtitle}
+            />
           ))}
         </div>
 
-        {/* График недели с анимацией (показываем только после загрузки) */}
+        {/* График недели(показываем только после загрузки) */}
         {!weeklyLoading && weeklyStats.length > 0 && (
-          <div className={`chart-wrapper ${isVisible ? 'chart-wrapper--visible' : ''}`}>
+          <div className="chart-wrapper">
             <WeeklyProgressChart data={weeklyStats} />
           </div>
         )}
         
-        {/* Заглушка при загрузке */}
+        {/* Заглушка при загрузке БУДЕТ МЕНЯТЬСЯ*/}
         {weeklyLoading && (
           <div className="weekly-chart-skeleton">
             Загрузка графика...
           </div>
         )}
+        
       </div>
     </div>
   );
 };
 
 export default Stats;
-
-

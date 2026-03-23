@@ -1,6 +1,11 @@
 // Стили для StatCard компонента
 @import '../../styles/_variables';
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .stat-card {
   border-radius: $card-radius;
   padding: $base-padding * 1.5;
@@ -14,7 +19,15 @@
   min-height: 140px;
   position: relative;
   overflow: hidden;
-  background: #f3f4f6; // Базовый fallback цвет
+  background: #f3f4f6;
+
+  // Анимация появления
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
 
   
   &__header {

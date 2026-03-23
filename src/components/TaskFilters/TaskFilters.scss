@@ -1,5 +1,9 @@
 @import '../../styles/variables';
 
+// ============================================
+// Task Filters — горизонтальный скролл
+// ============================================
+
 .task-filters {
   background: transparent;
   padding: 0;
@@ -7,86 +11,92 @@
   width: 100%;
 
   &__section {
+    position: relative;
+
     &:not(:last-child) {
-      margin-bottom: 16px;
+      margin-bottom: 10px;
+    }
 
-      @media (max-width: 768px) {
-        margin-bottom: 12px;
-      }
+    // Fade-маска по правому краю — намёк на скролл
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, #F9FAFB);
+      pointer-events: none;
+      z-index: 1;
     }
   }
 
-  &__priority {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-
-    @media (max-width: 768px) {
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-
-    // Последовательное появление фильтров приоритета
-    .priority-filter {
-      @for $i from 1 through 10 {
-        &:nth-child(#{$i}) {
-          @include animate-slide-down(#{$i * 0.05}s);
-        }
-      }
-    }
-  }
-
+  &__priority,
   &__categories {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;         // одна строка
+    overflow-x: auto;          // горизонтальный скролл
+    overflow-y: visible;
+    padding-bottom: 4px;       // место для тени кнопок
+    padding-right: 40px;       // не перекрывается fade-маской
 
-    @media (max-width: 768px) {
-      gap: 6px;
+    // Скрываем скроллбар везде
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
     }
 
-    // Последовательное появление категорий
-    .category-filter {
-      @for $i from 1 through 15 {
-        &:nth-child(#{$i}) {
-          @include animate-slide-down(#{0.3 + $i * 0.05}s);
-        }
-      }
-    }
+    // Плавный momentum-скролл на iOS
+    -webkit-overflow-scrolling: touch;
+  }
+
+  &__loading {
+    padding: 8px 14px;
+    color: color(text-light);
+    font-size: 13px;
+    background: color(white);
+    border-radius: 20px;
+    box-shadow: $shadow-sm;
+    display: inline-block;
   }
 }
 
+// ============================================
+// Кнопка приоритета
+// ============================================
+
 .priority-filter {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 14px;
+  padding: 8px 14px;
   border: 2px solid var(--priority-color);
   border-radius: 20px;
   background: color(white);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;         // не переносить текст
+  flex-shrink: 0;              // не сжиматься
+  transition: background 0.2s ease, color 0.2s ease,
+              transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: $shadow-sm;
 
-  @media (max-width: 768px) {
-    padding: 8px 12px;
-    font-size: 13px;
-    gap: 5px;
+  // Анимация появления
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      @include animate-slide-down(#{$i * 0.05}s);
+    }
   }
 
   &__dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: currentColor;
-
-    @media (max-width: 768px) {
-      width: 7px;
-      height: 7px;
-    }
+    flex-shrink: 0;
   }
 
   &:hover {
@@ -97,28 +107,39 @@
   }
 
   &--active {
-    background: var(--priority-color);
-    color: color(white);
+    background: var(--priority-color) !important;
+    color: color(white) !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   }
 }
 
+// ============================================
+// Кнопка категории
+// ============================================
+
 .category-filter {
-  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
   border: 2px solid color(border);
   border-radius: 20px;
   background: color(white);
   color: color(text);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s ease, color 0.2s ease,
+              border-color 0.2s ease, transform 0.2s ease,
+              box-shadow 0.2s ease;
   box-shadow: $shadow-sm;
 
-  @media (max-width: 768px) {
-    padding: 8px 14px;
-    font-size: 13px;
+  @for $i from 1 through 15 {
+    &:nth-child(#{$i}) {
+      @include animate-slide-down(#{0.2 + $i * 0.05}s);
+    }
   }
 
   &:hover {
@@ -126,7 +147,7 @@
     color: color(white);
     border-color: color(accent);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
   }
 
   &--active {
@@ -134,24 +155,6 @@
     color: color(white);
     border-color: color(accent);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-}
-
-
-.task-filters {
-  &__loading {
-    padding: 10px 16px;
-    text-align: center;
-    color: color(text-muted);
-    font-size: 14px;
-    background: color(white);
-    border-radius: 20px;
-    box-shadow: $shadow-sm;
-
-    @media (max-width: 768px) {
-      padding: 8px 14px;
-      font-size: 13px;
-    }
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
   }
 }
