@@ -1,33 +1,21 @@
 import { Link } from 'react-router-dom';
+import { useSettings } from '../../hooks/useSettings';
 
 const Settings = ({ 
-  settings = {},
-  onToggleQuietMode,
-  onThemeChange,
-  onLanguageChange 
 }) => {
-  const {
-    quietMode = false,
-    theme = 'light',
-    language = 'ru',
-  } = settings;
+  
+  const {language,theme,quietMode ,setTheme , setQuiteMode , setLanguage} = useSettings()
 
   const handleToggleQuietMode = () => {
-    if (onToggleQuietMode) {
-      onToggleQuietMode();
-    }
+      setQuiteMode()
   };
 
   const handleThemeChange = (e) => {
-    if (onThemeChange) {
-      onThemeChange(e.target.value);
-    }
+     setTheme(e.target.value)
   };
 
   const handleLanguageChange = (e) => {
-    if (onLanguageChange) {
-      onLanguageChange(e.target.value);
-    }
+    setLanguage(e.target.value)
   };
 
   const accountItems = [

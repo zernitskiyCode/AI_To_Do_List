@@ -16,7 +16,9 @@ import './styles/style.scss';
 import Auth from './pages/Auth/Auth';
 import { useAuth } from './hooks/useAuth';
 
-// import Testing from './components/ForTesting/TokenTestComponent'
+import { useSettings } from './hooks/useSettings';
+
+
 
 
 const APP_CONFIG = {
@@ -31,29 +33,15 @@ const APP_CONFIG = {
 
 
 const MainApp = () => {
+ 
+  const {theme} = useSettings()
 
-  const [settings, setSettings] = useState({
-    quietMode: true,
-    theme: 'light',
-    language: 'ru',
-  });
 
   // Применяем тему к body при изменении
   useEffect(() => {
-    document.body.setAttribute('data-theme', settings.theme);
-  }, [settings.theme]);
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
 
-  const handleToggleQuietMode = () => {
-    setSettings((prev) => ({ ...prev, quietMode: !prev.quietMode }));
-  };
-
-  const handleThemeChange = (theme) => {
-    setSettings((prev) => ({ ...prev, theme }));
-  };
-
-  const handleLanguageChange = (language) => {
-    setSettings((prev) => ({ ...prev, language }));
-  };
 
   return (
     <>
@@ -62,12 +50,7 @@ const MainApp = () => {
         <Route
           path="/settings"
           element={
-            <Settings
-              settings={settings}
-              onToggleQuietMode={handleToggleQuietMode}
-              onThemeChange={handleThemeChange}
-              onLanguageChange={handleLanguageChange}
-            />
+            <Settings />
           }
         />
         <Route path="/stats" element={<Stats 
