@@ -19,7 +19,7 @@ const Settings = ({
   };
 
   const accountItems = [
-    { icon: '👤', label: 'Профиль', to: '/profile', isLink: true },
+    { icon: '👤', label: 'Профиль', isLink: false },
     { icon: '🔐', label: 'Безопасность', isLink: false },
     { icon: '💳', label: 'Оплата', isLink: false },
   ];

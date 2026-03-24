@@ -10,13 +10,12 @@ export const useSettings = create(
       language: 'ru', 
 
       setTheme: (newTheme) => set({ theme: newTheme}),
-      setQuiteMode: () => set({ quietMode: !state.quietMode}),
+      setQuiteMode: () => set((state) => ({ quietMode: !state.quietMode })),
       setLanguage: (newLanguage) => set({ language: newLanguage}),
     }),
     {
       name: 'settings-key',
       partialize: (state) => {
-        // Вариант A: явно перечислить что сохранить
         return {
           theme: state.theme,
           language: state.language,
