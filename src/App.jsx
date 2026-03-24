@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate , useLocation } from 'react-router-dom';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -33,11 +33,13 @@ const APP_CONFIG = {
 
 
 const MainApp = () => {
- 
-  const {theme} = useSettings()
+  const location = useLocation();
+  const {theme, setLastRoute} = useSettings();
 
+  useEffect(() => {
+    setLastRoute(location.pathname);
+  }, [location, setLastRoute]);
 
-  // Применяем тему к body при изменении
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
@@ -77,18 +79,14 @@ const MainApp = () => {
 
 const AppContent = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  // const navigate = useNavigate();
-  if (!isAuthenticated) {
-  return <Navigate to="/auth" replace />;
-}
+  const navigate = useNavigate();
+  const { lastRoute } = useSettings();
 
-  // useEffect(() => {
-  //   if (!isLoading && !isAuthenticated) {
-  //     // navigate('/auth', { replace: true });
-  //     return <Navigate to="/auth" replace />
-
-  //   }
-  // }, [isAuthenticated, isLoading, navigate]);
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && lastRoute && lastRoute !== '/auth') {
+      navigate(lastRoute, { replace: true });
+    }
+  }, [isLoading, isAuthenticated, lastRoute, navigate]);
 
   if (isLoading) {
     return (
@@ -105,7 +103,7 @@ const AppContent = () => {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return <Navigate to="/auth" replace />;
   }
 
   return <MainApp />;
@@ -117,7 +115,6 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/auth" element={<Auth />} />
-        
         <Route path="/*" element={<AppContent />} />
       </Routes>
     </Router>

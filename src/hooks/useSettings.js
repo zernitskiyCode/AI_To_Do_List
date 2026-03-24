@@ -8,7 +8,9 @@ export const useSettings = create(
       quietMode: true,
       theme: 'light',
       language: 'ru', 
-
+      lastRoute: '/',
+      
+      setLastRoute: (path) => set({ lastRoute: path }),
       setTheme: (newTheme) => set({ theme: newTheme}),
       setQuiteMode: () => set((state) => ({ quietMode: !state.quietMode })),
       setLanguage: (newLanguage) => set({ language: newLanguage}),
@@ -20,6 +22,7 @@ export const useSettings = create(
           theme: state.theme,
           language: state.language,
           quietMode:state.quietMode,
+          lastRoute:state.lastRoute,
         };
     }
   }
