@@ -2,6 +2,7 @@ import { useReducer } from 'react';
 import './AddTaskForm.scss';
 import { useTasks } from '../../hooks/useTasks';
 import { useAllCategories } from '../../hooks/useCategories';
+import DateTimePicker from '../DateTimePicker/DateTimePicker';
 
 
 
@@ -12,6 +13,7 @@ const initialState = {
   selectedCategory: 'personal',
   customCategory: '',
   isCustomCategory: false,
+  dueDateTime: '',
   error: ''
 };
 
@@ -98,8 +100,12 @@ const validateTaskName = (name) => {
     dispatch({ type: 'UPDATE_FIELD', field: 'description', value: e.target.value });
   };
 
+  const handleDateTimeChange = (value) => {
+    dispatch({ type: 'UPDATE_FIELD', field: 'dueDateTime', value });
+  };
+
   //create task
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if(!validateTaskName(formState.taskName)) return;
@@ -119,22 +125,29 @@ const validateTaskName = (name) => {
       title: formState.taskName.trim(),
       description: formState.description.trim() || null,
       priority: formState.selectedPriority !== 'all' ? formState.selectedPriority : 'medium',
-      tag: finalCategory !== 'all' ? finalCategory : 'personal', // ИСПРАВЛЕНО: tag вместо category
-      dueDate: null,
+      tag: finalCategory !== 'all' ? finalCategory : 'personal',
+      deadline: formState.dueDateTime ? new Date(formState.dueDateTime).toISOString() : null,
       tags: []
     };
 
-    console.log('Отправляем задачу:', taskData); // Для отладки
+    console.log('📝 Отправляем задачу:', taskData);
+    console.log('📅 dueDateTime из formState:', formState.dueDateTime);
+    console.log('🕐 deadline после конвертации:', taskData.deadline);
 
-    createTask(taskData);
-    
-    dispatch({ type: 'RESET_FORM' });
-    
-    if (onClose) {
-      onClose();
+    try {
+      createTask(taskData);
+      
+      dispatch({ type: 'RESET_FORM' });
+      
+      if (onClose) {
+        onClose();
+      }
+
+      console.log('✅ Task created successfully');
+    } catch (error) {
+      console.error('❌ Ошибка создания задачи:', error);
+      dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Ошибка создания задачи' });
     }
-
-    console.log('Task created successfully');
   };
 
    return (
@@ -241,6 +254,15 @@ const validateTaskName = (name) => {
               </button>
             </>
           )}
+        </div>
+
+        {/* DateTime Picker */}
+        <div className="add-task-form__field">
+          <DateTimePicker
+            value={formState.dueDateTime}
+            onChange={handleDateTimeChange}
+            label="Срок выполнения (опционально)"
+          />
         </div>
 
         {/* submit*/}

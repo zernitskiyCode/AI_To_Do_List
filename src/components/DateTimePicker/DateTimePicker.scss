@@ -1,0 +1,234 @@
+@import '../../styles/variables';
+
+.datetime-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__label {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text);
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+
+  // Пресеты (быстрые кнопки)
+  &__presets {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      gap: 6px;
+    }
+  }
+
+  // Wrapper для input с кнопкой очистки
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  // Кастомный placeholder
+  &__placeholder {
+    position: absolute;
+    left: 16px;
+    color: var(--color-text-light);
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 1;
+
+    @media (max-width: 768px) {
+      left: 14px;
+      font-size: 14px;
+    }
+  }
+
+  // Основной input
+  &__input {
+    flex: 1;
+    padding: 12px 16px;
+    padding-right: 40px; // Место для кнопки очистки
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-input-bg);
+    color: var(--color-text);
+    font-size: 16px;
+    font-family: inherit;
+    @include transition();
+    box-shadow: $shadow-sm;
+
+    @media (max-width: 768px) {
+      padding: 10px 14px;
+      padding-right: 36px;
+      font-size: 14px;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: $shadow-md;
+    }
+
+    // Скрываем нативный placeholder когда пустой
+    &--empty {
+      color: transparent;
+      
+      &::-webkit-datetime-edit {
+        color: transparent;
+      }
+      
+      &:focus {
+        color: var(--color-text);
+        
+        &::-webkit-datetime-edit {
+          color: var(--color-text);
+        }
+      }
+    }
+
+    // Стилизация календаря (работает в Chrome/Edge)
+    &::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      filter: var(--calendar-icon-filter, invert(0.5));
+      @include transition();
+
+      &:hover {
+        filter: var(--calendar-icon-filter-hover, invert(0.3));
+      }
+    }
+  }
+
+  // Кнопка очистки
+  &__clear {
+    position: absolute;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-border);
+    color: var(--color-text);
+    border: none;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    @include transition();
+    z-index: 1;
+
+    @media (max-width: 768px) {
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      right: 10px;
+    }
+
+    &:hover {
+      background: #EF4444;
+      color: var(--color-white);
+      transform: scale(1.1);
+    }
+  }
+
+  // Отображение выбранной даты
+  &__display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(79, 70, 229, 0.1);
+    border: 1px solid var(--color-accent);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--color-text);
+
+    @media (max-width: 768px) {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+  }
+
+  &__display-icon {
+    font-size: 16px;
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+
+  &__display-text {
+    font-weight: 500;
+  }
+}
+
+// Кнопки пресетов
+.datetime-preset {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-white);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  @include transition();
+  box-shadow: $shadow-sm;
+
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+    font-size: 13px;
+    gap: 5px;
+  }
+
+  &__icon {
+    font-size: 16px;
+    line-height: 1;
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+
+  &__label {
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &--active {
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+}
+
+// Темная тема
+@media (prefers-color-scheme: dark) {
+  .datetime-picker {
+    &__input {
+      &::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+
+        &:hover {
+          filter: invert(0.8);
+        }
+      }
+    }
+  }
+}
