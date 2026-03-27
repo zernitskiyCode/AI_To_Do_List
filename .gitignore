@@ -12,7 +12,8 @@ __pycache__/
 .vscode/
 
 # Documentation (Dark Theme)
-DarkTheme.md
-DARK_THEME_FIXES.md
-DARK_THEME_FIXES_SUMMARY.md
-DARK_THEME_TESTING.md
+DARK_THEME.md
+
+# Rechart_explained
+Recahrts_Explained.md
+
