@@ -1,91 +1,91 @@
 # Backend - Календарь (Вариант 2: Balanced)
 
-## 1. Схемы (schemas.py)
+## ✅ Что уже работает:
 
-### TaskCreate
-- Изменить `deadline` с `Optional[datetime]` на обязательное или оставить опциональным
-- Убедиться что принимает ISO 8601 формат
+### 1. Схемы (schemas.py) ✅ ГОТОВО
+- ✅ `TaskCreate` уже принимает `deadline: Optional[datetime]`
+- ✅ Формат ISO 8601 поддерживается
+- ✅ `TaskUpdate` поддерживает обновление `deadline`
 
-### TaskResponse (если есть)
-- Добавить поле `deadline` в ответ
-- Форматировать в ISO 8601
+### 2. CRUD операции (database/crud.py) ✅ ЧАСТИЧНО ГОТОВО
+- ✅ `create_task()` сохраняет `deadline` в БД
+- ✅ `get_user_tasks()` возвращает `dueDate` (маппинг из `deadline`)
+- ✅ `update_task()` поддерживает обновление `deadline`
 
+### 3. Endpoints (main.py) ✅ ЧАСТИЧНО ГОТОВО
+- ✅ **POST /createtask** - принимает и сохраняет `deadline`
+- ✅ **PUT /updatetask/{task_id}** - можно обновить `deadline`
+- ✅ **GET /gettask** - возвращает задачи с `dueDate`
+- ✅ **DELETE /deletetask/{task_id}** - удаление задач работает
 
-## 2. CRUD операции (database/crud.py)
+### 4. База данных ✅ ГОТОВО
+- ✅ Поле `deadline TIMESTAMP` существует в таблице `task`
+- ✅ Поле `completed_at TIMESTAMP` для отслеживания завершения
 
-### Фильтрация по дате
-- Добавить функцию `get_tasks_by_date(user_id, date)` 
-  - Фильтр: `WHERE DATE(deadline) = date`
-  
-- Добавить функцию `get_tasks_by_month(user_id, year, month)`
-  - Фильтр: `WHERE EXTRACT(YEAR FROM deadline) = year AND EXTRACT(MONTH FROM deadline) = month`
+---
 
-### Сортировка
-- В `get_tasks()` добавить сортировку по `deadline ASC` (задачи с ближайшим дедлайном первыми)
-- Задачи без дедлайна в конце
+## ❌ Что НЕ реализовано (на будущее):
 
+### Фильтрация по дате (пока не нужно - все на фронте)
+- ❌ `get_tasks_by_date(user_id, date)` - фильтр по конкретной дате
+- ❌ `get_tasks_by_month(user_id, year, month)` - фильтр по месяцу
 
-## 3. Endpoints (main.py)
+### Новые endpoints (пока не нужны)
+- ❌ **GET /tasks/by-date?date=YYYY-MM-DD** - задачи на конкретную дату
+- ❌ **GET /tasks/by-month?year=2024&month=3** - задачи за месяц
+- ❌ **GET /tasks/upcoming** - задачи на ближайшие 7 дней
 
-### Новые роуты
+### Оптимизация
+- ❌ Сортировка по `deadline ASC NULLS LAST` в `get_user_tasks()`
+- ❌ Индекс на `deadline` для быстрых запросов
+- ❌ Автоматическое удаление/архивация истекших задач
 
-**GET /tasks/by-date**
-- Query параметр: `date` (формат: YYYY-MM-DD)
-- Возвращает задачи на конкретную дату
-- Пример: `/tasks/by-date?date=2024-03-27`
+### Валидация
+- ❌ Проверка что `deadline` не раньше `created_at`
+- ❌ Флаг `is_overdue` для просроченных задач
 
-**GET /tasks/by-month**
-- Query параметры: `year`, `month`
-- Возвращает все задачи за месяц
-- Пример: `/tasks/by-month?year=2024&month=3`
+---
 
-**GET /tasks/upcoming** (опционально)
-- Возвращает задачи на ближайшие 7 дней
-- Полезно для виджета "Предстоящие задачи"
+## 🎯 Рекомендации для будущего:
 
+### Когда понадобятся endpoints по датам:
+- Если задач станет 1000+ (медленная фильтрация на фронте)
+- Если нужна статистика по месяцам из БД
+- Если нужна пагинация календаря
 
-## 4. Обновление существующих endpoints
+### Автоудаление истекших задач:
+**Вариант 1: Soft delete (архивация)**
+```sql
+ALTER TABLE task ADD COLUMN is_archived BOOLEAN DEFAULT false;
+UPDATE task SET is_archived = true 
+WHERE deadline < NOW() - INTERVAL '30 days' AND completed = false;
+```
 
-### POST /createtask
-- Убедиться что `deadline` корректно сохраняется в БД
-- Валидация: дата не может быть раньше `created_at` (опционально)
+**Вариант 2: Cron job (периодическое удаление)**
+```python
+# Каждую ночь в 00:00
+DELETE FROM task 
+WHERE deadline < NOW() - INTERVAL '30 days' AND completed = false;
+```
 
-### PUT /updatetask/{task_id}
-- Разрешить обновление `deadline`
-- Можно установить `deadline = NULL` (убрать дедлайн)
+**Вариант 3: Фильтрация в запросе**
+```python
+# В get_user_tasks() добавить:
+WHERE (deadline IS NULL OR deadline >= NOW() - INTERVAL '7 days')
+```
 
-### GET /gettask
-- Добавить `deadline` в ответ (если еще не добавлено)
-- Сортировка по `deadline ASC NULLS LAST`
+---
 
+## 📊 Текущее состояние:
 
-## 5. Миграции БД (если нужно)
+**Что работает:**
+- Создание задач с `deadline` ✅
+- Обновление `deadline` ✅
+- Получение задач с `dueDate` ✅
+- Удаление задач ✅
 
-### Проверить поле deadline
-- Убедиться что тип `TIMESTAMP` (уже есть в models.py)
-- Добавить индекс на `deadline` для быстрых запросов:
-  ```sql
-  CREATE INDEX idx_task_deadline ON task(deadline);
-  ```
+**Что НЕ нужно пока:**
+- Фильтрация по датам на бэкенде (все на фронте)
+- Автоудаление (задачи остаются в БД)
 
-
-## 6. Валидация и обработка ошибок
-
-### Валидация дат
-- Проверка формата ISO 8601
-- Обработка timezone (UTC или локальное время)
-- Ошибка 400 если формат даты неверный
-
-### Edge cases
-- Задачи без дедлайна (NULL) - не ломают фильтрацию
-- Просроченные задачи - отдельный флаг `is_overdue` (опционально)
-
-
-## Приоритет реализации
-
-1. **Высокий**: Обновить POST /createtask для приема deadline
-2. **Высокий**: Добавить GET /tasks/by-month
-3. **Средний**: Добавить GET /tasks/by-date
-4. **Средний**: Сортировка по deadline в GET /gettask
-5. **Низкий**: GET /tasks/upcoming
-6. **Низкий**: Индекс на deadline
+**Вывод:** Бэкенд готов для текущей версии календаря! 🎉

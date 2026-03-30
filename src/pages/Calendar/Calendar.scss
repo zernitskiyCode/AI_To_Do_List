@@ -1,2 +1,13 @@
-// Стили для Calendar страницы
-// Используются глобальные стили из _layout.scss и _components.scss
+@import '../../styles/variables';
+
+.calendar-page {
+  &__content {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    @media (max-width: 768px) {
+      padding: 12px;
+    }
+  }
+}

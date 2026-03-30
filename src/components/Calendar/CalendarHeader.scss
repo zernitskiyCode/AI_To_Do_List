@@ -1,0 +1,87 @@
+@import '../../styles/variables';
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--color-white);
+  border-radius: 16px;
+  box-shadow: $shadow-sm;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__month {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+    text-transform: capitalize;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__btn {
+    padding: 10px 16px;
+    border: 2px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-white);
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    @include transition();
+    box-shadow: $shadow-sm;
+
+    @media (max-width: 768px) {
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+
+    &:hover {
+      background: var(--color-accent);
+      color: var(--color-white);
+      border-color: var(--color-accent);
+      transform: translateY(-1px);
+      box-shadow: $shadow-md;
+    }
+
+    &--prev,
+    &--next {
+      width: 40px;
+      padding: 10px;
+      font-size: 18px;
+
+      @media (max-width: 768px) {
+        width: 36px;
+        padding: 8px;
+        font-size: 16px;
+      }
+    }
+
+    &--today {
+      @media (max-width: 768px) {
+        flex: 1;
+      }
+    }
+  }
+}

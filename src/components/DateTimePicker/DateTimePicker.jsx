@@ -119,6 +119,7 @@ const DateTimePicker = ({ value, onChange, label = "Срок выполнени�
           className={`datetime-picker__input ${!value ? 'datetime-picker__input--empty' : ''}`}
           value={value}
           onChange={handleInputChange}
+          min={new Date().toISOString().slice(0, 16)} // Запрет выбора прошлого
         />
         {value && (
           <button

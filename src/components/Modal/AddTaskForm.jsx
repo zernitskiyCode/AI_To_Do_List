@@ -110,12 +110,10 @@ const validateTaskName = (name) => {
     
     if(!validateTaskName(formState.taskName)) return;
 
-    // Определяем финальную категорию
     const finalCategory = formState.isCustomCategory 
       ? formState.customCategory.trim() 
       : formState.selectedCategory;
-
-    // Валидация кастомной категории
+ ЫЫЫЫЫ
     if (formState.isCustomCategory && !formState.customCategory.trim()) {
       dispatch({ type: 'UPDATE_FIELD', field: 'error', value: 'Введите название категории' });
       return;

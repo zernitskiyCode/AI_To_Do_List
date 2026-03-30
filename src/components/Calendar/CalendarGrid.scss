@@ -1,0 +1,47 @@
+@import '../../styles/variables';
+
+.calendar-grid {
+  background: var(--color-white);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: $shadow-sm;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+
+  &__header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+
+    @media (max-width: 768px) {
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+  }
+
+  &__weekday {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-light);
+    padding: 8px;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+      padding: 6px 4px;
+    }
+  }
+
+  &__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+
+    @media (max-width: 768px) {
+      gap: 4px;
+    }
+  }
+}
